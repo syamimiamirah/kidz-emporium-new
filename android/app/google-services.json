@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "264620947798",
+    "project_id": "kidz-emporium-7ae9f",
+    "storage_bucket": "kidz-emporium-7ae9f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264620947798:android:fa9a5f2f04391843a97ef7",
+        "android_client_info": {
+          "package_name": "com.example.kidz_emporium"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuaKueOx4cn2NHbmwBNIhMDRhHuOjURI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
