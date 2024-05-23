@@ -25,6 +25,7 @@ import 'package:kidz_emporium/components/side_menu.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:kidz_emporium/models/user_model.dart';
 import 'package:kidz_emporium/screens/parent/view_chat_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_video_parent.dart';
 import '../config.dart';
 import '../main.dart';
 import '../models/booking_model.dart';
@@ -245,9 +246,9 @@ class _homePageState extends State<HomePage>{
                       // Add your code here to navigate or perform an action
                       // when the calendar is clicked
                       print("Video clicked!");
-                      /*Navigator.push(context, MaterialPageRoute(
-                          builder: (context) =>  ViewYoutubeAdmin(userData:widget.userData)),
-                      );*/
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) =>  ViewVideoParentPage(userData:widget.userData)),
+                      );
                     }
                     if (catNames[index] == "Calendar") {
                       // Add your code here to navigate or perform an action
