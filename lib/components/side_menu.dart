@@ -9,6 +9,7 @@ import 'package:kidz_emporium/Screens/therapist/view_video_therapist.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/Screens/login_page.dart';
 import 'package:kidz_emporium/Screens/home.dart';
+import 'package:kidz_emporium/screens/parent/view_video_parent.dart';
 
 import '../Screens/admin/create_therapist_admin.dart';
 import '../Screens/admin/view_task_admin.dart';
@@ -110,7 +111,11 @@ class _navBarState extends State<NavBar>{
           ListTile(
             leading: Icon(Icons.video_library),
             title: Text("Video"),
-            onTap: () => null,
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ViewVideoParentPage(userData:widget.userData)),//CreateTherapist()),
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.people),
