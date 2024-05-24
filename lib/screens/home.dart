@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:kidz_emporium/Screens/admin/view_therapist_admin.dart';
 import 'package:kidz_emporium/Screens/admin/view_youtube_admin.dart';
@@ -25,7 +26,9 @@ import 'package:kidz_emporium/components/side_menu.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:kidz_emporium/models/user_model.dart';
 import 'package:kidz_emporium/screens/parent/view_chat_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_notification_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_video_parent.dart';
+import 'package:kidz_emporium/services/local_notification.dart';
 import '../config.dart';
 import '../main.dart';
 import '../models/booking_model.dart';
@@ -86,10 +89,16 @@ class _homePageState extends State<HomePage>{
 
   @override
   void initState() {
+    listenToNotification();
     super.initState();
     _loadData(widget.userData.data!.id);
   }
-
+listenToNotification(){
+    print("listening to notification");
+    LocalNotification.onClickNotification.stream.listen((event){
+       Navigator.push(context, MaterialPageRoute(builder: (context)=> NotificationDetailsPage(payload: event,)));
+    });
+}
 
   Future<void> _loadData(String userId) async {
     try {

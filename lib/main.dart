@@ -7,6 +7,8 @@ import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/Screens/login_page.dart';
 import 'package:kidz_emporium/Screens/register_page.dart';
 import 'package:kidz_emporium/provider/user_provider.dart';
+import 'package:kidz_emporium/services/local_notification.dart';
+import 'package:kidz_emporium/services/message_handler.dart';
 import 'package:provider/provider.dart';
 import 'Screens/parent/create_reminder_parent.dart';
 import 'Screens/parent/view_reminder_parent.dart';
@@ -28,24 +30,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
-
-  // Initialize platform-specific configurations for Android and iOS
-  const AndroidInitializationSettings androidInitializationSettings =
-  AndroidInitializationSettings('ic_launcher');
-  final InitializationSettings initializationSettings =
-  InitializationSettings(
-    android: androidInitializationSettings,
-    // iOS: IOSInitializationSettings(
-    //   requestAlertPermission: false,
-    //   requestBadgePermission: false,
-    //   requestSoundPermission: false,
-    // ),
-  );
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
+  await Firebase.initializeApp();
+  await LocalNotification.init();
+  await MessageHandler.initialize();
   runApp(MyApp());
 }
 
