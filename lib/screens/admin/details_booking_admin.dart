@@ -118,7 +118,7 @@ class _BookingDetailsTherapistPageState extends State<BookingDetailsAdminPage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: kPrimaryColor,
+                            primary: kSecondaryColor,
                             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -160,7 +160,7 @@ class _BookingDetailsTherapistPageState extends State<BookingDetailsAdminPage> {
                           ),
                           child: Text(
                             'Assign Therapist',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, color: Colors.black),
                           ),
                         ),
                       ),

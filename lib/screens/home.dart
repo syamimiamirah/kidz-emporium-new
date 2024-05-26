@@ -35,6 +35,7 @@ import '../models/booking_model.dart';
 import '../models/child_model.dart';
 import '../models/therapist_model.dart';
 import '../services/api_service.dart';
+import '../services/message_handler.dart';
 import '../services/shared_service.dart';
 import 'admin/create_task_admin.dart';
 import 'admin/create_therapist_admin.dart';
@@ -87,18 +88,40 @@ class _homePageState extends State<HomePage>{
   List<TherapistModel> therapists = [];
   List<UserModel> users = []; // Add a list to store user details
 
+  int _notificationCount = MessageHandler.getNotificationCount();
+
   @override
   void initState() {
-    listenToNotification();
     super.initState();
     _loadData(widget.userData.data!.id);
+    listenToNotification();
   }
-listenToNotification(){
-    print("listening to notification");
-    LocalNotification.onClickNotification.stream.listen((event){
-       Navigator.push(context, MaterialPageRoute(builder: (context)=> NotificationDetailsPage(payload: event,)));
+
+  void listenToNotification() {
+    LocalNotification.onClickNotification.stream.listen((event) {
+      setState(() {
+        _notificationCount = MessageHandler.getNotificationCount(); // Update local count
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NotificationDetailsPage(
+            userData: widget.userData,
+            payload: event,
+          ),
+        ),
+      );
     });
-}
+  }
+
+  void _resetNotificationCount() {
+    setState(() {
+      MessageHandler.resetNotificationCount();
+      _notificationCount = MessageHandler.getNotificationCount();
+    });
+  }
+
+
 
   Future<void> _loadData(String userId) async {
     try {

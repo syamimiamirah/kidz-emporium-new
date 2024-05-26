@@ -54,7 +54,6 @@ dependencies:
   youtube_api: ^1.0.4
   http:
   fluttertoast:
-  flutter_webrtc: ^0.9.48+hotfix.1
   image_picker: ^1.0.7
   html: ^0.15.4
   firebase_core: ^2.24.2
@@ -65,7 +64,6 @@ dependencies:
   photo_view: ^0.15.0
   firebase_messaging: ^14.7.10
   flutter_local_notifications: ^17.1.2
-  flutter_timezone: ^1.0.8
   rxdart: ^0.27.7
 
 
