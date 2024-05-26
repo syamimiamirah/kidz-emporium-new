@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -5,9 +7,7 @@ class LocalNotification {
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static final onClickNotification = BehaviorSubject<String>();
 
-  static void onNotificationTap(
-      NotificationResponse notificationResponse
-      ){
+  static void onNotificationTap(NotificationResponse notificationResponse){
     onClickNotification.add(notificationResponse.payload!);
   }
 
@@ -36,7 +36,7 @@ class LocalNotification {
         required String title, required String body, required String payload
       })async {
     const AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails('kidz-emporium', 'your channel name',
+    AndroidNotificationDetails('kidz-emporium', 'Kidz-Emporium',
         channelDescription: 'Reschedule Booking Appointment',
         importance: Importance.max,
         priority: Priority.high,
@@ -45,7 +45,8 @@ class LocalNotification {
     NotificationDetails(android: androidNotificationDetails);
     await _flutterLocalNotificationsPlugin.show(
         0, title, body, notificationDetails,
-        payload: payload);
+        payload: json.encode({'title': title, 'body': body, 'data': {'bookingId': payload}}),
+    );
   }
 
   static Future showPeriodicNotification({
@@ -64,7 +65,7 @@ class LocalNotification {
 
   //close a specific channel notification
   //must add a button to close notification and it will be text button, when the parent update the booking
-static Future cancel(int id)async{
-    await _flutterLocalNotificationsPlugin.cancel(id);
-}
+  static Future cancel(int id)async{
+      await _flutterLocalNotificationsPlugin.cancel(id);
+  }
 }

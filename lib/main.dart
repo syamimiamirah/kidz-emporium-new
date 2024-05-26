@@ -26,13 +26,23 @@ FlutterLocalNotificationsPlugin();
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print("Handling a background message: ${message.messageId}");
+  print("Handling a background message: ${message.messageId}");
+  LocalNotification.showSimpleNotification(
+    title: message.notification?.title ?? 'No Title',
+    body: message.notification?.body ?? 'No Body',
+    payload: message.data['bookingId'] ?? 'No Payload',
+  );
+  MessageHandler.incrementNotificationCount(); // Increment notification count
+
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await LocalNotification.init();
-  await MessageHandler.initialize();
+  //await LocalNotification.init();
+  //await MessageHandler.initialize();
+  await LocalNotification.init(); // Initialize local notifications
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler); // Set the background message handler
   runApp(MyApp());
 }
 
@@ -64,32 +74,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: 'launch_background',
-            ),
-          ),
-        );
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-      // Handle the message and navigate to the desired screen
-    });
+    MessageHandler.initialize(context);
   }
 
   @override

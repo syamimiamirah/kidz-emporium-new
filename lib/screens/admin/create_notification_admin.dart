@@ -141,7 +141,6 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                             subject,
                             message,
                           );
-
                           if (sent) {
                             FormHelper.showSimpleAlertDialog(
                               context,
