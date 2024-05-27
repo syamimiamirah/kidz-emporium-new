@@ -295,10 +295,10 @@ Widget _createReminderParentUI(BuildContext context){
                       });
                     }},
                     fontSize: 16,
-                    btnColor: Colors.orange,
-                    txtColor: Colors.black,
+                    btnColor: kPrimaryColor,
+                    txtColor: Colors.white,
                     borderRadius: 10,
-                    borderColor: Colors.orange,),
+                    borderColor: kPrimaryColor,),
                 ],
               ),
             ],

@@ -105,6 +105,7 @@ class _FAQPageState extends State<FAQPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          SizedBox(height: 10,),
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
