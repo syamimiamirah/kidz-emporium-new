@@ -13,6 +13,7 @@ import 'package:snippet_coder_utils/FormHelper.dart';
 
 import '../../config.dart';
 import '../../models/booking_model.dart';
+import '../../models/reminder_model.dart';
 import '../../models/user_model.dart';
 import '../../utils.dart';
 
@@ -355,11 +356,20 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
                             paymentId: null,
                             statusBooking: statusBooking,
                           );
+                          ReminderModel reminderModel = ReminderModel(
+                            eventName: "Therapy Session",
+                            details: service!,
+                            fromDate: Utils.formatDateTimeToString(fromDate),
+                            toDate: Utils.formatDateTimeToString(toDate),
+                            userId: widget.userData.data!.id,
+                          );
+
 
                           try {
                             final bookingResponse = await APIService.createBooking(model);
+                            final reminderResponse = await APIService.createReminder(reminderModel);
                             // Handle the booking response here
-                            if (bookingResponse != null) {
+                            if (bookingResponse != null && reminderResponse != null) {
                               // Booking created successfully
                               showDialog(
                                 context: context,

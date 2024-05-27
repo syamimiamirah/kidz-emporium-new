@@ -44,11 +44,19 @@ class _ViewReminderParentPageState extends State<ViewReminderParentPage> {
         String title = reminderData.eventName;
         String details = reminderData.details;
         String? id = reminderData.id;
+        String fromTime = DateFormat('hh:mm a').format(DateTime.parse(reminderData.fromDate));
+        String toTime = DateFormat('hh:mm a').format(DateTime.parse(reminderData.toDate));
         //print('Reminder ID from API: $id');
 
 
         mySelectedEvents[dateKey] ??= [];
-        mySelectedEvents[dateKey]!.add({'id': id, 'title': title, 'details': details});
+        mySelectedEvents[dateKey]!.add({
+          'id': id,
+          'title': title,
+          'details': details,
+          'fromTime': fromTime,
+          'toTime': toTime
+        });
       }
 
       setState(() {});
@@ -112,7 +120,8 @@ class _ViewReminderParentPageState extends State<ViewReminderParentPage> {
                 String reminderTitle = _listOfDayEvents(_selectedDate!)[index]['title'];
                 String reminderDetails = _listOfDayEvents(_selectedDate!)[index]['details'];
                 String reminderId = _listOfDayEvents(_selectedDate!)[index]['id']!;
-
+                String fromTime = _listOfDayEvents(_selectedDate!)[index]['fromTime'];
+                String toTime = _listOfDayEvents(_selectedDate!)[index]['toTime'];
                 Color backgroundColor = Colors.grey.withOpacity(0.3);
 
                 return Dismissible(
@@ -166,22 +175,30 @@ class _ViewReminderParentPageState extends State<ViewReminderParentPage> {
                     }
                   },
                   child: Card(
-                    color: kPrimaryColor.withOpacity(0.8),
+                    color: kPrimaryColor,
                     elevation: 2,
                     margin: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                     child: ListTile(
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(height: 4),
                           Text('$reminderTitle', style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
+                            fontSize: 18,
                           ),),
-                          Text('Details: $reminderDetails'),
+                          SizedBox(height: 4),
+                          Text('Details: $reminderDetails', style: TextStyle(fontSize: 16),),
+                          SizedBox(height: 4),
+                          Text(
+                            'Time: $fromTime - $toTime',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ],
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.edit, color: Colors.black),
+                        icon: Icon(Icons.edit, color: Colors.white),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -196,7 +213,7 @@ class _ViewReminderParentPageState extends State<ViewReminderParentPage> {
                 );
               },
             )
-                : Center(child: Text('No reminders for the selected date')),
+                : Center(child: Text('No reminders for the selected date', style: TextStyle(fontSize: 16),), ),
           ),
         ],
       ),
@@ -209,7 +226,7 @@ class _ViewReminderParentPageState extends State<ViewReminderParentPage> {
             ),
           );
         },
-        child: Icon(Icons.add, color: Colors.black),
+        child: Icon(Icons.add, color: Colors.white),
         backgroundColor: kPrimaryColor,
       ),
     );

@@ -9,6 +9,7 @@ import '../../models/booking_model.dart';
 import '../../models/login_response_model.dart';
 import '../../models/paymentMethod_model.dart';
 import '../../models/payment_model.dart';
+import '../../models/reminder_model.dart';
 import '../../utils.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -426,7 +427,16 @@ class _PaymentPageState extends State<PaymentPage> {
       paymentId: paymentId!,
       statusBooking: "Pending",
     );
-    APIService.createBooking(model).then((response) {
+
+    ReminderModel reminderModel = ReminderModel(
+      eventName: "Therapy Session",
+      details: widget.service!,
+      fromDate: Utils.formatDateTimeToString(widget.fromDate!),
+      toDate: Utils.formatDateTimeToString(widget.toDate!),
+      userId: widget.userData.data!.id,
+    );
+    APIService.createBooking(model).then((response){
+      APIService.createReminder(reminderModel);
       if (response != null) {
         print("mantap");
         Navigator.pushReplacement(context, MaterialPageRoute(
