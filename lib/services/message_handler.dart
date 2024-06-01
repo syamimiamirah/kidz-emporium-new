@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:kidz_emporium/Screens/home.dart';
 import 'package:kidz_emporium/services/shared_service.dart';
 
 import '../screens/parent/view_notification_parent.dart';
@@ -11,7 +12,6 @@ class MessageHandler {
 
   static Future<void> initialize(BuildContext context) async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Handle foreground messages
       print("Message received: ${message.notification?.title ?? 'No Title'} - ${message.notification?.body ?? 'No Body'}");
       _notificationCount++;
       LocalNotification.showSimpleNotification(

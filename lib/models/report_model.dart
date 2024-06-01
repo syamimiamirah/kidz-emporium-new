@@ -5,6 +5,7 @@ class ReportModel {
   String reportDescription;
   String childId;
   String bookingId;
+  String file;
 
   ReportModel({
     required this.userId,
@@ -13,6 +14,7 @@ class ReportModel {
     required this.reportDescription,
     required this.childId,
     required this.bookingId,
+    required this.file,
   });
 
   factory ReportModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class ReportModel {
       reportDescription: json['reportDescription'] ?? '',
       childId: json['childId'] ?? '',
       bookingId: json['bookingId'] ?? '',
+      file: json['filePath'] ?? '',
     );
   }
 
@@ -34,6 +37,7 @@ class ReportModel {
       'reportDescription': reportDescription,
       'childId': childId,
       'bookingId': bookingId,
+      'filePath': file,
     };
 
     if (id != null) {

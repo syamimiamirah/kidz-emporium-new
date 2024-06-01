@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:kidz_emporium/Screens/therapist/update_report_therapist.dart';
 import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
 import 'package:kidz_emporium/config.dart';
@@ -12,6 +15,7 @@ import '../../models/report_model.dart';
 import '../../models/user_model.dart';
 import '../../services/api_service.dart';
 import 'create_report_therapist.dart';
+import 'dart:io';
 
 class ReportDetailsTherapistPage extends StatefulWidget {
   final LoginResponseModel userData;
@@ -38,7 +42,9 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
   bool _isLoading = true;
   late String reportTitle = '';
   late String description = '';
+  late String pdfUrl = '';
   String? id;
+  String? localPdfPath;
 
   @override
   void initState() {
@@ -46,17 +52,16 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
     _loadData(widget.userData.data!.id);
   }
 
-Future<void> _loadData(String userId) async {
-  try {
-    // Use Future.wait to wait for all API calls to complete
-    await Future.wait([
-    checkReportAvailability(),
-    fetchReportDetails(),// Fetch user details
-    ]);
-  } catch (error) {
-    print('Error loading data: $error');
+  Future<void> _loadData(String userId) async {
+    try {
+      await Future.wait([
+        checkReportAvailability(),
+        fetchReportDetails(),
+      ]);
+    } catch (error) {
+      print('Error loading data: $error');
+    }
   }
-}
 
   Future<void> checkReportAvailability() async {
     try {
@@ -68,30 +73,55 @@ Future<void> _loadData(String userId) async {
       print('Error checking report: $error');
     }
   }
+
   Future<void> fetchReportDetails() async {
     try {
       List<ReportModel> reports = await APIService.getReportDetailsByBookingId(widget.booking.id!);
 
       if (reports.isNotEmpty) {
-        // Assuming you only want to display the details of the first report in the list
         ReportModel report = reports[0];
         setState(() {
           reportTitle = report.reportTitle;
           description = report.reportDescription;
+          pdfUrl = report.file ?? '';
           id = report.id;
+        });
+        if (pdfUrl.isNotEmpty) {
+          await downloadPdf(pdfUrl);
+        }
+        setState(() {
           _isLoading = false;
         });
       } else {
         setState(() {
-          _isLoading = false; // Set loading state to false even if no report is found
+          _isLoading = false;
         });
         print('No report details found');
       }
     } catch (error) {
       print('Error fetching report details: $error');
       setState(() {
-        _isLoading = false; // Set loading state to false even if no report is found
+        _isLoading = false;
       });
+    }
+  }
+
+  Future<void> downloadPdf(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/report.pdf';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        setState(() {
+          localPdfPath = filePath;
+        });
+      } else {
+        print('Failed to download PDF');
+      }
+    } catch (e) {
+      print('Error downloading PDF: $e');
     }
   }
 
@@ -103,9 +133,11 @@ Future<void> _loadData(String userId) async {
         centerTitle: true,
         backgroundColor: kPrimaryColor,
       ),
-      body: SingleChildScrollView( // Wrap the body with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Center(
-        child: _isLoading ? CircularProgressIndicator() : (hasReport ? _buildReportWidget() : _buildNoReportWidget()),
+          child: _isLoading
+              ? CircularProgressIndicator()
+              : (hasReport ? _buildReportWidget() : _buildNoReportWidget()),
         ),
       ),
     );
@@ -128,7 +160,7 @@ Future<void> _loadData(String userId) async {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
               padding: EdgeInsets.all(20),
@@ -150,9 +182,6 @@ Future<void> _loadData(String userId) async {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
                 ],
               ),
             ),
@@ -169,67 +198,94 @@ Future<void> _loadData(String userId) async {
               icon: Icons.description,
               iconColor: kPrimaryColor,
             ),
+            _buildDetailItem(
+              label: 'PDF File:',
+              value: '',
+              icon: Icons.file_present,
+              iconColor: kPrimaryColor,
+            ),
+            SizedBox(height: 10),
+            Container(
+              height: 400,
+              child: localPdfPath != null
+                  ? PDFView(
+                filePath: localPdfPath,
+                enableSwipe: true,
+                swipeHorizontal: true,
+                autoSpacing: true, // Set to true for automatic spacing between pages
+                pageFling: true, // Enable page fling for smoother navigation
+                onError: (error) {
+                  print('Error while loading PDF: $error');
+                },
+                onPageError: (page, error) {
+                  print('Error on page $page: $error');
+                },
+              )
+                  : Center(child: Text('PDF file not available')),
+            ),
+
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [ElevatedButton(
-                onPressed: () async {
-                  bool deleteSuccess = await APIService.deleteReport(id!);
-                  if (deleteSuccess) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text(Config.appName),
-                          content: Text('Report deleted successfully'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    bool deleteSuccess = await APIService.deleteReport(id!);
+                    if (deleteSuccess) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(Config.appName),
+                            content: Text('Report deleted successfully'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                    builder: (context) => ViewReportTherapistPage(userData: widget.userData),
-                                ),
-                                );
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text(Config.appName),
-                          content: Text('Failed to delete report'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.red, // Change color to red for delete button
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                                      builder: (context) => ViewReportTherapistPage(userData: widget.userData),
+                                    ),
+                                  );
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(Config.appName),
+                            content: Text('Failed to delete report'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
-                child: Text(
-                  'Delete',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -264,7 +320,6 @@ Future<void> _loadData(String userId) async {
     );
   }
 
-
   Widget _buildDetailItem({required String label, required String value, required IconData icon, Color iconColor = Colors.blue}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -273,7 +328,7 @@ Future<void> _loadData(String userId) async {
         children: [
           Icon(icon, size: 30, color: iconColor),
           SizedBox(width: 20),
-          Expanded( // Wrap with Expanded widget
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -288,7 +343,6 @@ Future<void> _loadData(String userId) async {
                 Text(
                   value,
                   style: TextStyle(fontSize: 16),
-                  // Set maxLines to null for multiline text
                   softWrap: true,
                   maxLines: null,
                 ),
@@ -299,8 +353,6 @@ Future<void> _loadData(String userId) async {
       ),
     );
   }
-
-
 
   Widget _buildNoReportWidget() {
     return Padding(
@@ -318,7 +370,6 @@ Future<void> _loadData(String userId) async {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              // Navigate to the page where the therapist can create a report
               Navigator.push(
                 context,
                 MaterialPageRoute(

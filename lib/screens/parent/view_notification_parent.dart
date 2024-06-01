@@ -44,11 +44,12 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
 
   void _parsePayload(String payload) {
     try {
+      print(payload);
       final data = Map<String, dynamic>.from(json.decode(payload));
       setState(() {
         _title = data['title'] ?? 'No Title';
         _body = data['body'] ?? 'No Body';
-        _bookingId = data['bookingId'] ?? 'No Booking ID';
+        _bookingId = data['data']?['bookingId'] ?? 'No Booking ID';  //
       });
     } catch (e) {
       print('Error parsing payload: $e');

@@ -1,5 +1,7 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
@@ -12,6 +14,7 @@ import '../../models/login_response_model.dart';
 import '../../models/report_model.dart';
 import '../../models/user_model.dart';
 import '../../services/api_service.dart';
+import '../../services/firebase_storage_service.dart';
 
 class CreateReportTherapistPage extends StatefulWidget {
   final LoginResponseModel userData;
@@ -33,6 +36,7 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
   String? description;
   late String childId = '';
   late String childName = '';
+  PlatformFile? selectedFile;
 
   @override
   void initState() {
@@ -61,6 +65,20 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
       // Handle error
     }
   }
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        selectedFile = result.files.first;
+      });
+    }
+  }
+
 
   Future<void> fetchChildDetails(String childId) async {
     try {
@@ -97,6 +115,7 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
     );
   }
   Widget _createReportUI(BuildContext context){
+    String? fileName = selectedFile != null ? selectedFile!.path?.split('/').last : null;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -172,15 +191,54 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
               contentPadding: 15,
               fontSize: 16,
               prefixIconPaddingLeft: 10,
-              prefixIconPaddingTop: 0,
+              prefixIconPaddingBottom: 80,
               isMultiline: true,
               hintFontSize: 16,
               maxLength: TextField.noMaxLength,
-              multilineRows: 20,
-
+              multilineRows: 5,
             ),
           ),
-
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: _pickFile,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey), // Change border color
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.file_upload,
+                    color: kPrimaryColor,
+                  ),
+                  SizedBox(width: 10), // Add spacing between icon and text
+                  Text(
+                    'Upload Report',
+                    style: TextStyle(
+                      color: Colors.black, // Change text color
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold, // Make text bold
+                      fontFamily: 'Roboto', // Change font family
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 10), // Add some space between button and file name
+          // Display file name if a file is selected
+          fileName != null
+              ? Text(
+            'File Selected: $fileName',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          )
+              : Container(),
           const SizedBox(height: 10),
           Center(
               child: Column(
@@ -199,18 +257,20 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
                       ),
                       SizedBox(width: 20),
                       FormHelper.submitButton(
-                        "Save", (){
+                        "Save", () async {
                         if(validateAndSave()){
                           setState((){
                             isAPICallProcess = true; //API
                           });
+                          String? fileURL = await FirebaseStorageHelper.uploadFile(selectedFile!.path!);
+                          print(fileURL);
                           ReportModel model = ReportModel(
                             userId: widget.userData.data!.id,
                             reportTitle: reportTitle!,
                             reportDescription: description!,
                             childId: widget.booking.childId,
-                            bookingId: widget.booking.id!
-
+                            bookingId: widget.booking.id!,
+                            file: fileURL!,
                           );
                           APIService.createReport(model).then((response) {
                             print(response);

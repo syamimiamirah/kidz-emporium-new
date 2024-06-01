@@ -14,6 +14,7 @@ import 'package:kidz_emporium/screens/parent/view_video_parent.dart';
 import '../Screens/admin/create_therapist_admin.dart';
 import '../Screens/admin/view_task_admin.dart';
 import '../Screens/admin/view_therapist_admin.dart';
+import '../Screens/admin/view_youtube_admin.dart';
 import '../Screens/parent/create_booking_parent.dart';
 import '../Screens/parent/view_child_parent.dart';
 import '../Screens/parent/view_reminder_parent.dart';
@@ -207,7 +208,11 @@ class _adminNavBarState extends State<AdminNavBar> {
             ListTile(
               leading: Icon(Icons.video_library),
               title: Text("Video"),
-              onTap: () => null,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => ViewYoutubeAdmin(userData:widget.userData)),//CreateTherapist()),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.people),
