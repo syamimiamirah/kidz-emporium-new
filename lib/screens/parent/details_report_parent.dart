@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:kidz_emporium/Screens/therapist/update_report_therapist.dart';
 import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
 import 'package:kidz_emporium/config.dart';
@@ -11,6 +14,7 @@ import '../../models/login_response_model.dart';
 import '../../models/report_model.dart';
 import '../../models/user_model.dart';
 import '../../services/api_service.dart';
+import 'dart:io';
 
 class ReportDetailsParentPage extends StatefulWidget {
   final LoginResponseModel userData;
@@ -37,7 +41,9 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
   bool _isLoading = true;
   late String reportTitle = '';
   late String description = '';
+  late String pdfUrl = '';
   String? id;
+  String? localPdfPath;
 
   @override
   void initState() {
@@ -47,10 +53,9 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
 
   Future<void> _loadData(String userId) async {
     try {
-      // Use Future.wait to wait for all API calls to complete
       await Future.wait([
         checkReportAvailability(),
-        fetchReportDetails(),// Fetch user details
+        fetchReportDetails(),
       ]);
     } catch (error) {
       print('Error loading data: $error');
@@ -67,30 +72,55 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
       print('Error checking report: $error');
     }
   }
+
   Future<void> fetchReportDetails() async {
     try {
       List<ReportModel> reports = await APIService.getReportDetailsByBookingId(widget.booking.id!);
 
       if (reports.isNotEmpty) {
-        // Assuming you only want to display the details of the first report in the list
         ReportModel report = reports[0];
         setState(() {
           reportTitle = report.reportTitle;
           description = report.reportDescription;
+          pdfUrl = report.file ?? '';
           id = report.id;
+        });
+        if (pdfUrl.isNotEmpty) {
+          await downloadPdf(pdfUrl);
+        }
+        setState(() {
           _isLoading = false;
         });
       } else {
         setState(() {
-          _isLoading = false; // Set loading state to false even if no report is found
+          _isLoading = false;
         });
         print('No report details found');
       }
     } catch (error) {
       print('Error fetching report details: $error');
       setState(() {
-        _isLoading = false; // Set loading state to false if an error occurs
+        _isLoading = false;
       });
+    }
+  }
+
+  Future<void> downloadPdf(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/report.pdf';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        setState(() {
+          localPdfPath = filePath;
+        });
+      } else {
+        print('Failed to download PDF');
+      }
+    } catch (e) {
+      print('Error downloading PDF: $e');
     }
   }
 
@@ -102,7 +132,7 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
         centerTitle: true,
         backgroundColor: kPrimaryColor,
       ),
-      body: SingleChildScrollView( // Wrap the body with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Center(
           child: _isLoading ? CircularProgressIndicator() : (hasReport ? _buildReportWidget() : _buildNoReportWidget()),
         ),
@@ -168,13 +198,40 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
               icon: Icons.description,
               iconColor: kPrimaryColor,
             ),
+            _buildDetailItem(
+              label: 'PDF File:',
+              value: '',
+              icon: Icons.file_present,
+              iconColor: kPrimaryColor,
+            ),
+            SizedBox(height: 10),
+            Container(
+              height: 400,
+              child: localPdfPath != null
+                  ? PDFView(
+                filePath: localPdfPath,
+                enableSwipe: true,
+                swipeHorizontal: true,
+                autoSpacing: false,
+                pageFling: false,
+                onRender: (_pages) {
+                  setState(() {});
+                },
+                onError: (error) {
+                  print(error.toString());
+                },
+                onPageError: (page, error) {
+                  print('$page: ${error.toString()}');
+                },
+              )
+                  : Center(child: Text('PDF file not available')),
+            ),
             SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-
 
   Widget _buildDetailItem({required String label, required String value, required IconData icon, Color iconColor = Colors.blue}) {
     return Padding(
@@ -184,7 +241,7 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
         children: [
           Icon(icon, size: 30, color: iconColor),
           SizedBox(width: 20),
-          Expanded( // Wrap with Expanded widget
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -199,7 +256,6 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
                 Text(
                   value,
                   style: TextStyle(fontSize: 16),
-                  // Set maxLines to null for multiline text
                   softWrap: true,
                   maxLines: null,
                 ),

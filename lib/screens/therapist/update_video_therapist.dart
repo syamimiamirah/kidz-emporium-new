@@ -31,6 +31,7 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
   late String childId = "";
   late String videoPath = "";
   late String childName = '';
+  late String videoFile = '';
   List<String> selectedChildren = [];
   List<ChildModel> children= [];
   XFile? selectedVideo;
@@ -66,6 +67,7 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
           }else{
             print('Child details not found');
           }
+          videoFile = video.file;
         });
       } else {
         // Handle case where reminder is null
@@ -149,11 +151,11 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
                   contentPadding: 15,
                   fontSize: 16,
                   prefixIconPaddingLeft: 10,
-                  prefixIconPaddingBottom: 170,
+                  prefixIconPaddingBottom: 80,
                   isMultiline: true,
                   hintFontSize: 16,
                   maxLength: TextField.noMaxLength,
-                  multilineRows: 10,
+                  multilineRows: 5,
                 ),
               ),
             ),
@@ -281,69 +283,64 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
                         FormHelper.submitButton(
                           "Save", () async {
                           if(validateAndSave() && selectedVideo != null){
-                            setState(() {
-                              isAPICallProcess = true;
+                            setState((){
+                              isAPICallProcess = true; //API
                             });
+                            await FirebaseStorageHelper.updateFile(videoFile, selectedVideo!.path!);
 
-                            String? videoURL = await FirebaseStorageHelper.uploadVideo(selectedVideo!.path!);
-                            print(videoURL);
-
-                            VideoModel model = VideoModel(
+                            VideoModel updatedModel = VideoModel(
                               userId: widget.userData.data!.id,
                               videoTitle: videoTitle!,
                               videoDescription: videoDescription!,
                               childId: selectedChildren,
-                              file: videoURL!,
+                              file: selectedVideo!.path!,
                             );
-
-                            APIService.createVideo(model).then((response) {
-                              print(videoURL);
-                              print(response);
-                              setState(() {
-                                isAPICallProcess = false;
-                              });
-                              if (response != null) {
-                                FormHelper.showSimpleAlertDialog(
-                                  context, Config.appName,
-                                  "Video uploaded", "OK", () {
+                            print(widget.videoId);
+                            bool success = await APIService.updateVideo(widget.videoId, updatedModel);
+                            setState(() {
+                              isAPICallProcess = false;
+                            });
+                            if (success) {
+                              FormHelper.showSimpleAlertDialog(
+                                context,
+                                Config.appName,
+                                "Video updated",
+                                "OK",
+                                    () {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          ViewVideoTherapistPage(
-                                              userData: widget.userData),
+                                      builder: (context) => ViewVideoTherapistPage(userData: widget.userData),
                                     ),
                                   );
                                 },
-                                );
-                              } else {
-                                FormHelper.showSimpleAlertDialog(
-                                  context,
-                                  Config.appName,
-                                  "Video failed to upload",
-                                  "OK",
-                                      () {
-                                    Navigator.of(context).pop();
-                                  },
-                                );
-                              }
-                            });
-
+                              );
+                            }
+                            else {
+                              FormHelper.showSimpleAlertDialog(
+                                context,
+                                Config.appName,
+                                "Failed to update report",
+                                "OK",
+                                    () {
+                                  Navigator.of(context).pop();
+                                },
+                              );
+                            }
                           }
                         },
-                          btnColor: Colors.pink,
+                          fontSize: 16,
+                          btnColor: kSecondaryColor,
                           txtColor: Colors.white,
                           borderRadius: 10,
-                          fontSize: 16,
-                          borderColor: Colors.pink,
-                        ),
+                          borderColor: kPrimaryColor,),
                       ],
-                    )
+                    ),
                   ],
                 )
-            )
+            ),
           ],
-        )
+        ),
     );
   }
   bool validateAndSave() {

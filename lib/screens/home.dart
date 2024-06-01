@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
@@ -98,19 +101,36 @@ class _homePageState extends State<HomePage>{
   }
 
   void listenToNotification() {
-    LocalNotification.onClickNotification.stream.listen((event) {
-      setState(() {
-        _notificationCount = MessageHandler.getNotificationCount(); // Update local count
-      });
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => NotificationDetailsPage(
-            userData: widget.userData,
-            payload: event,
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      if (message.data != null) {
+        String payload = json.encode(message.data);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NotificationDetailsPage(
+              userData: widget.userData,
+              payload: payload,
+            ),
           ),
-        ),
-      );
+        );
+      }
+    });
+
+    LocalNotification.onClickNotification.stream.listen((event) {
+      if (event != null) {
+        setState(() {
+          _notificationCount = MessageHandler.getNotificationCount(); // Update local count
+        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NotificationDetailsPage(
+              userData: widget.userData,
+              payload: event,
+            ),
+          ),
+        );
+      }
     });
   }
 
@@ -152,8 +172,18 @@ class _homePageState extends State<HomePage>{
   Future<void> _loadBooking(String userId) async {
     try {
       List<BookingModel> loadedBooking = await APIService.getBooking(widget.userData.data!.id);
+      DateTime now = DateTime.now();
       setState(() {
-        bookings = loadedBooking;
+        bookings = loadedBooking.where((booking) {
+          DateTime fromDate = DateTime.parse(booking.fromDate);
+          return fromDate.isAfter(now) || fromDate.isAtSameMomentAs(now);
+        }).toList();
+        // Sort the bookings by date
+        bookings.sort((a, b) {
+          DateTime dateA = DateTime.parse(a.fromDate);
+          DateTime dateB = DateTime.parse(b.fromDate);
+          return dateA.compareTo(dateB);
+        });
       });
     } catch (error) {
       print('Error loading bookings: $error');
@@ -410,7 +440,7 @@ class _homePageState extends State<HomePage>{
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => BookingDetailsAdminPage(
+                            builder: (context) => BookingDetailsPage(
                               userData: widget.userData,
                               booking: booking,
                               therapist: therapist,
@@ -443,7 +473,7 @@ class _homePageState extends State<HomePage>{
                           Text(
                             bookings[index].service,
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 16,
                               color: Colors.black,
                             ),
                           ),
@@ -454,7 +484,7 @@ class _homePageState extends State<HomePage>{
                             "On ${DateFormat('dd-MM-yyyy').format(
                           DateTime.parse(bookings[index].fromDate))}" ,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               color: Colors.black,
                             ),
                           ),
@@ -553,8 +583,18 @@ class _adminHomePageState extends State<AdminHomePage>{
   Future<void> _loadBooking(String userId) async {
     try {
       List<BookingModel> loadedBooking = await APIService.getAllBookings();
+      DateTime now = DateTime.now();
       setState(() {
-        bookings = loadedBooking;
+        bookings = loadedBooking.where((booking) {
+          DateTime fromDate = DateTime.parse(booking.fromDate);
+          return fromDate.isAfter(now) || fromDate.isAtSameMomentAs(now);
+        }).toList();
+        // Sort the bookings by date
+        bookings.sort((a, b) {
+          DateTime dateA = DateTime.parse(a.fromDate);
+          DateTime dateB = DateTime.parse(b.fromDate);
+          return dateA.compareTo(dateB);
+        });
       });
     } catch (error) {
       print('Error loading bookings: $error');
@@ -799,7 +839,7 @@ class _adminHomePageState extends State<AdminHomePage>{
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => BookingDetailsPage(
+                              builder: (context) => BookingDetailsAdminPage(
                                 userData: widget.userData,
                                 booking: booking,
                                 therapist: therapist,
@@ -831,7 +871,7 @@ class _adminHomePageState extends State<AdminHomePage>{
                             Text(
                               bookings[index].service,
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 16,
                                 color: Colors.black,
                               ),
                             ),
@@ -842,7 +882,7 @@ class _adminHomePageState extends State<AdminHomePage>{
                               "On ${DateFormat('dd-MM-yyyy').format(
                                   DateTime.parse(bookings[index].fromDate))}",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 color: Colors.black,
                               ),
                             ),
@@ -943,8 +983,18 @@ class _therapistHomePageState extends State<TherapistHomePage>{
     try {
       List<BookingModel> loadedBookings = await APIService.getAllBookings();
       List<BookingModel> therapistBookings = loadedBookings.where((booking) => booking.therapistId == widget.userData.data?.id).toList();
+      DateTime now = DateTime.now();
       setState(() {
-        bookings = therapistBookings;
+        bookings = therapistBookings.where((booking) {
+          DateTime fromDate = DateTime.parse(booking.fromDate);
+          return fromDate.isAfter(now) || fromDate.isAtSameMomentAs(now);
+        }).toList();
+        // Sort the bookings by date
+        bookings.sort((a, b) {
+          DateTime dateA = DateTime.parse(a.fromDate);
+          DateTime dateB = DateTime.parse(b.fromDate);
+          return dateA.compareTo(dateB);
+        });
       });
     } catch (error) {
       print('Error loading bookings: $error');
@@ -1224,7 +1274,7 @@ class _therapistHomePageState extends State<TherapistHomePage>{
                             Text(
                               bookings[index].service,
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 16,
                                 color: Colors.black,
                               ),
                             ),
@@ -1235,7 +1285,7 @@ class _therapistHomePageState extends State<TherapistHomePage>{
                               "On ${DateFormat('dd-MM-yyyy').format(
                                   DateTime.parse(bookings[index].fromDate))}",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 color: Colors.black,
                               ),
                             ),

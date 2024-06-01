@@ -157,7 +157,6 @@ class _updateBookingParentPageState extends State<UpdateBookingParentPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: Colors.grey,),
-
                     ),
                     child: Row(
                       children: [
@@ -169,60 +168,14 @@ class _updateBookingParentPageState extends State<UpdateBookingParentPage> {
                           ),
                         ),
                         Expanded(
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: service.isNotEmpty ? service : null,
-                              hint: const Text("Type of services", style: TextStyle(fontSize: 16)),
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: null,
-                                  child: Text("Type of Services",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Screening Session",
-                                  child: Text("Screening Session",style: TextStyle(fontSize: 16)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Speech Therapy (ST)",
-                                  child: Text("Speech Therapy (ST)",style: TextStyle(fontSize: 16)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Occupational Therapy (OT)",
-                                  child: Text("Occupational Therapy (OT)",style: TextStyle(fontSize: 16)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Special Education (SPED)",
-                                  child: Text("Special Education (SPED)",style: TextStyle(fontSize: 16)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Clinical Psychology (PSY)",
-                                  child: Text("Clinical Psychology (PSY)",style: TextStyle(fontSize: 16)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Big Ones Playgroup",
-                                  child: Text("Big Ones Playgroup",style: TextStyle(fontSize: 16)),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: "Small Ones Playgroup",
-                                  child: Text("Small Ones Playgroup",style: TextStyle(fontSize: 16)),
-                                ),
-                              ],// The first item is the hint, set its value to null
-                              isExpanded: true,
-                              icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
-                              onChanged: (String? newValue){
-                                //Your code to execute, when a menu item is selected from dropdown
-                                //dropDownStringItem = value;
-                                setState(() {
-                                  this.service = newValue!;
-                                });
-                              },
-                            ),
+                          child: Text(
+                            service.isNotEmpty ? service : "Type of Services",
+                            style: TextStyle(fontSize: 16),
                           ),
                         ),
                       ],
                     ),
                   ),
-
                 ),
               ),
               Center(

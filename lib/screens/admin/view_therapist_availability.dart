@@ -7,6 +7,7 @@ import '../../config.dart';
 import '../../contants.dart';
 import '../../models/booking_model.dart';
 import '../../models/login_response_model.dart';
+import '../../models/reminder_model.dart';
 import '../../services/api_service.dart';
 import '../../models/user_model.dart';
 import '../../utils.dart';
@@ -68,6 +69,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
           toDate = Utils.parseStringToDateTime(booking.toDate);
           therapistId = booking.therapistId!;
           paymentId = booking.paymentId ?? '';
+          userId = booking.userId!;
           // Find therapist name from users list
           UserModel? selectedTherapist = users.firstWhere(
                 (user) => user.id == therapistId,
@@ -340,13 +342,22 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
         toDate: Utils.formatDateTimeToString(widget.toDate),
         statusBooking: "Approved",
       );
+      ReminderModel reminderModel = ReminderModel(
+        eventName: "Appointment Booking Session",
+        details: service!,
+        fromDate: Utils.formatDateTimeToString(fromDate),
+        toDate: Utils.formatDateTimeToString(toDate),
+        userId: userId,
+      );
+
 
       bool success = await APIService.updateBooking(widget.bookingId, updatedBooking);
+      final reminderResponse = await APIService.createReminder(reminderModel);
       setState(() {
         isAPICallProcess = false;
       });
 
-      if (success) {
+      if (success && reminderResponse != null) {
         showDialog(
           context: context,
           builder: (BuildContext context) {

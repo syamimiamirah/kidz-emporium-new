@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kidz_emporium/models/video_model.dart';
+import 'package:kidz_emporium/screens/therapist/update_video_therapist.dart';
 import 'package:video_player/video_player.dart';
 import '../../contants.dart';
 import '../../models/login_response_model.dart';
@@ -96,25 +97,30 @@ class _WatchVideoTherapistPageState extends State<WatchVideoTherapistPage> {
             ),
           ),
           SizedBox(height: 10),
-          Center(
-            child:
-              ElevatedButton(
-                onPressed: () {
-                  // Add your update logic here
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: kSecondaryColor,
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Update',
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-          )
+          // Center(
+          //   child:
+          //     ElevatedButton(
+          //       onPressed: () {
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder: (context) => UpdateVideoTherapistPage(userData: widget.userData, videoId: widget.video.id!,),
+          //           ),
+          //         );
+          //       },
+          //       style: ElevatedButton.styleFrom(
+          //         primary: kSecondaryColor,
+          //         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          //         shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(10),
+          //         ),
+          //       ),
+          //       child: Text(
+          //         'Update',
+          //         style: TextStyle(fontSize: 16),
+          //       ),
+          //     )
+          // )
         ],
       ),
     );

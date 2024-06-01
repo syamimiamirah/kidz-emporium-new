@@ -356,20 +356,12 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
                             paymentId: null,
                             statusBooking: statusBooking,
                           );
-                          ReminderModel reminderModel = ReminderModel(
-                            eventName: "Therapy Session",
-                            details: service!,
-                            fromDate: Utils.formatDateTimeToString(fromDate),
-                            toDate: Utils.formatDateTimeToString(toDate),
-                            userId: widget.userData.data!.id,
-                          );
 
 
                           try {
                             final bookingResponse = await APIService.createBooking(model);
-                            final reminderResponse = await APIService.createReminder(reminderModel);
                             // Handle the booking response here
-                            if (bookingResponse != null && reminderResponse != null) {
+                            if (bookingResponse != null) {
                               // Booking created successfully
                               showDialog(
                                 context: context,
@@ -514,16 +506,23 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
   }
 
   Future<DateTime?> pickDateTime(
-      DateTime initialDate,{
+      DateTime initialDate, {
         required bool pickDate,
         DateTime? firstDate,
-      }) async{
-    if (pickDate){
+      }) async {
+    if (pickDate) {
       final date = await showDatePicker(
         context: context,
         initialDate: initialDate,
-        firstDate: DateTime.now(),
+        firstDate: firstDate ?? DateTime.now(),
         lastDate: DateTime(2101),
+        selectableDayPredicate: (DateTime day) {
+          // Disable Sunday and Monday
+          if (day.weekday == DateTime.sunday || day.weekday == DateTime.monday) {
+            return false;
+          }
+          return true;
+        },
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.light().copyWith(
@@ -537,12 +536,12 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
         },
       );
 
-      if(date == null) return null;
+      if (date == null) return null;
 
       final time = Duration(hours: initialDate.hour, minutes: initialDate.minute);
 
       return date.add(time);
-    }else{
+    } else {
       final timeOfDay = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(initialDate),
@@ -559,11 +558,12 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
         },
       );
 
-      if(timeOfDay == null) return null;
+      if (timeOfDay == null) return null;
       final date = DateTime(initialDate.year, initialDate.month, initialDate.day);
       final time = Duration(hours: timeOfDay.hour, minutes: timeOfDay.minute);
       return date.add(time);
     }
   }
+
 }
 

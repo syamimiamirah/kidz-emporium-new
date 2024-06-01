@@ -428,15 +428,7 @@ class _PaymentPageState extends State<PaymentPage> {
       statusBooking: "Pending",
     );
 
-    ReminderModel reminderModel = ReminderModel(
-      eventName: "Therapy Session",
-      details: widget.service!,
-      fromDate: Utils.formatDateTimeToString(widget.fromDate!),
-      toDate: Utils.formatDateTimeToString(widget.toDate!),
-      userId: widget.userData.data!.id,
-    );
     APIService.createBooking(model).then((response){
-      APIService.createReminder(reminderModel);
       if (response != null) {
         print("mantap");
         Navigator.pushReplacement(context, MaterialPageRoute(

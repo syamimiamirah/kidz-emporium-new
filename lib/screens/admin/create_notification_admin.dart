@@ -3,7 +3,6 @@ import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:kidz_emporium/Screens/admin/view_booking_admin.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/services/api_service.dart';
-import 'package:kidz_emporium/services/local_notification.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 
 import '../../config.dart';
@@ -12,6 +11,7 @@ import '../../models/login_response_model.dart';
 class AdminSendMessagePage extends StatefulWidget {
   final LoginResponseModel userData;
   final String bookingId;
+
   const AdminSendMessagePage({Key? key, required this.userData, required this.bookingId}) : super(key: key);
 
   @override
@@ -20,11 +20,29 @@ class AdminSendMessagePage extends StatefulWidget {
 
 class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
   static final GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
-  TextEditingController _recipientController = TextEditingController();
-  TextEditingController _subjectController = TextEditingController();
-  TextEditingController _messageController = TextEditingController();
-  String subject = "";
+
+  // Example list of available dates as placeholders
+  List<String> availableDates = [
+    'dd/mm/yyyy',
+    'dd/mm/yyyy',
+    'dd/mm/yyyy',
+  ];
+
+  // Generate message with bullet points
+  String generateMessage() {
+    String baseMessage = "We are sorry, the chosen date has no available therapist. Please reschedule your session based on the dates below:\n\n";
+    String bulletPoints = availableDates.map((date) => '• $date').join('\n');
+    return baseMessage + bulletPoints;
+  }
+
+  String subject = "Booking Date is Not Available";
   String message = "";
+
+  @override
+  void initState() {
+    super.initState();
+    message = generateMessage();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +91,7 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                 fontSize: 16,
                 prefixIconPaddingLeft: 10,
                 hintFontSize: 16,
+                initialValue: subject, // Set initial value
               ),
             ),
           ),
@@ -106,6 +125,7 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                 hintFontSize: 16,
                 maxLength: TextField.noMaxLength,
                 multilineRows: 10,
+                initialValue: message, // Set initial value
               ),
             ),
           ),
