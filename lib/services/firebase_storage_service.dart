@@ -37,6 +37,15 @@ class FirebaseStorageHelper {
     }
   }
 
+  static Future<String?> uploadThumbnail(String thumbnailPath) async {
+
+    final storageRef = FirebaseStorage.instance.ref().child('thumbnails/${DateTime.now().millisecondsSinceEpoch}');
+    final uploadTask = storageRef.putFile(File(thumbnailPath));
+    TaskSnapshot taskSnapshot = await uploadTask;
+    String downloadURL = await taskSnapshot.ref.getDownloadURL();
+    return downloadURL;
+  }
+
   // Method to upload any file (including PDFs)
   static Future<String?> uploadFile(String filePath) async {
     try {

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:kidz_emporium/screens/parent/watch_video_parent.dart';
 import 'package:kidz_emporium/screens/parent/watch_youtube_parent.dart';
@@ -16,7 +14,7 @@ import 'package:kidz_emporium/services/firebase_storage_service.dart';
 import 'package:kidz_emporium/models/youtube_model.dart';
 import '../../config.dart';
 import '../../contants.dart';
-import '../admin/watch_youtube_admin.dart';
+import '../../models/child_model.dart';
 
 class ViewVideoParentPage extends StatefulWidget {
   final LoginResponseModel userData;
@@ -43,7 +41,14 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
 
   Future<void> _loadVideos(String userId) async {
     try {
-      List<VideoModel> videoList = await APIService.getVideo(userId);
+      List<VideoModel> videoList = await APIService.getAllVideos();
+      List<ChildModel> childList = await APIService.getChild(userId);
+
+      // Extract child IDs from the child list
+      // List<String?> childIds = childList.map((child) => child.id).toList();
+      //
+      // // Filter videos that belong to the user's children
+      // videoList = videoList.where((video) => childIds.contains(video.childId)).toList();
       setState(() {
         videos = videoList;
       });
@@ -121,7 +126,7 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'List of Local Videos',
+            'List of Videos',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -133,39 +138,30 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
             child: ListView.builder(
               itemCount: videos.length,
               itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WatchVideoParentPage(
-                          userData: widget.userData,
-                          video: videos[index],
-                        ),
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    side: BorderSide(color: Colors.grey.shade300, width: 1),
+                  ),
+                  child: ListTile(
+                    title: Text(videos[index].videoTitle, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      videos[index].videoDescription,
+                      maxLines: 4, // Limit to 3 lines
+                      overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14.0,)),  // Display ellipsis if overflow
+                    leading: videos[index].thumbnailPath != null ? Image.network(videos[index].thumbnailPath!) : SizedBox.shrink(),
+                    onTap: () {
+                      Navigator.push(
+                        context, MaterialPageRoute(
+                        builder: (context) =>
+                            WatchVideoTherapistPage(
+                                userData: widget.userData,
+                                video: videos[index]),
                       ),
-                    );
-                    print('Video tapped: ${videos[index].videoTitle}');
-                  },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      side: BorderSide(color: Colors.grey.shade300, width: 1),
-                    ),
-                    child: ListTile(
-                      title: Text(videos[index].videoTitle),
-                      subtitle: Text(videos[index].videoDescription),
-                      leading: FutureBuilder<String?>(
-                        future: generateThumbnail(videos[index].file),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data!.isNotEmpty) {
-                            return Image.file(File(snapshot.data!));
-                          } else {
-                            return SizedBox.shrink();
-                          }
-                        },
-                      ),
-                    ),
+                      );
+                      print('Video tapped: ${videos[index].videoTitle}');
+                    },
                   ),
                 );
               },

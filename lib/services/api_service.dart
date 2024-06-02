@@ -1502,7 +1502,7 @@ class APIService{
       final Map<String, dynamic> responseData = json.decode(response.body);
       return VideoModel.fromJson(responseData);
     } else {
-      throw Exception('Failed to create task');
+      throw Exception('Failed to create video');
     }
   }
 

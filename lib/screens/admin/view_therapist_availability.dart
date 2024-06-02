@@ -45,7 +45,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
   late String service = "";
   String? therapistName;
   String? childName;
-  late String userId;
+  late String userId = "";
   bool isAPICallProcess =  false;
 
   @override
