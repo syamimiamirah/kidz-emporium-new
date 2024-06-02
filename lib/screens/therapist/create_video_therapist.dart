@@ -5,7 +5,10 @@ import 'package:kidz_emporium/Screens/therapist/view_video_therapist.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/services/api_service.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:io';
 
 import '../../config.dart';
 import '../../models/child_model.dart';
@@ -15,42 +18,56 @@ import '../../services/firebase_storage_service.dart';
 class CreateVideoTherapistPage extends StatefulWidget {
   final LoginResponseModel userData;
 
-  const CreateVideoTherapistPage({Key? key, required this.userData}): super(key: key);
+  const CreateVideoTherapistPage({Key? key, required this.userData}) : super(key: key);
   @override
-  _createVideoTherapistPageState createState() => _createVideoTherapistPageState();
-
+  _CreateVideoTherapistPageState createState() => _CreateVideoTherapistPageState();
 }
 
-class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
+class _CreateVideoTherapistPageState extends State<CreateVideoTherapistPage> {
   static final GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool isAPICallProcess = false;
   late String userId;
   String? videoTitle;
   String? videoDescription;
   List<String> selectedChildren = [];
-  List<ChildModel> children= [];
+  List<ChildModel> children = [];
   XFile? selectedVideo;
+  String? thumbnailUrl;
 
   Future<void> _loadChildren() async {
-    try{
+    try {
       List<ChildModel> allChildren = await APIService.getAllChildren();
       setState(() {
         children = allChildren;
       });
-    }catch(error){
+    } catch (error) {
       print('Error loading children: $error');
     }
   }
 
+  Future<String?> generateThumbnail(String videoPath) async {
+    final thumbnailPath = await VideoThumbnail.thumbnailFile(
+      video: videoPath,
+      thumbnailPath: (await getTemporaryDirectory()).path,
+      imageFormat: ImageFormat.WEBP,
+      maxHeight: 100,
+      quality: 75,
+    );
+    return thumbnailPath;
+  }
+
+
   Future<void> _pickVideo() async {
     final XFile? video = await ImagePicker().pickVideo(source: ImageSource.gallery);
-    setState(() {
-      selectedVideo = video!;
-    });
+    if (video != null) {
+      setState(() {
+        selectedVideo = video;
+      });
+    }
   }
 
   @override
-  void initState(){
+  void initState() {
     _loadChildren();
     super.initState();
     if (widget.userData != null && widget.userData.data != null) {
@@ -62,7 +79,7 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Upload Video'),
@@ -71,29 +88,35 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
       ),
       body: ProgressHUD(
         child: Form(
-          key: _createVideoTherapistPageState.globalFormKey,
+          key: _CreateVideoTherapistPageState.globalFormKey,
           child: _createVideoTherapistUI(context),
-        )
-      )
+        ),
+      ),
     );
   }
 
-  Widget _createVideoTherapistUI(BuildContext context){
+  Widget _createVideoTherapistUI(BuildContext context) {
     String? fileName = selectedVideo != null ? selectedVideo!.path.split('/').last : null;
     return SingleChildScrollView(
       child: Column(
         children: [
           const SizedBox(height: 10),
           Center(
-            child: Padding(padding: const EdgeInsets.only(top: 10),
-              child: FormHelper.inputFieldWidget(context, "video title", 'Video Title', (onValidateVal){
-                if(onValidateVal.isEmpty){
-                  return "Video title can't be empty";
-                }
-                return null;
-              }, (onSavedVal){
-                videoTitle = onSavedVal.toString().trim();
-              },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: FormHelper.inputFieldWidget(
+                context,
+                "video title",
+                'Video Title',
+                    (onValidateVal) {
+                  if (onValidateVal.isEmpty) {
+                    return "Video title can't be empty";
+                  }
+                  return null;
+                },
+                    (onSavedVal) {
+                  videoTitle = onSavedVal.toString().trim();
+                },
                 prefixIconColor: kSecondaryColor,
                 showPrefixIcon: true,
                 prefixIcon: const Icon(Icons.task),
@@ -110,17 +133,17 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
           Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 10),
-              child:
-              FormHelper.inputFieldWidget(
+              child: FormHelper.inputFieldWidget(
                 context,
-                "description", "Description",
-                    (onValidateVal){
-                  if(onValidateVal.isEmpty){
+                "description",
+                "Description",
+                    (onValidateVal) {
+                  if (onValidateVal.isEmpty) {
                     return "Description can't be empty";
                   }
                   return null;
                 },
-                    (onSavedVal){
+                    (onSavedVal) {
                   videoDescription = onSavedVal.toString().trim();
                 },
                 prefixIconColor: kSecondaryColor,
@@ -150,14 +173,14 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children:[
+                  children: [
                     Row(
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(10),
                           child: Icon(
-                            Icons.people, // Your desired icon
-                            color: kSecondaryColor, // Icon color
+                            Icons.people,
+                            color: kSecondaryColor,
                           ),
                         ),
                         Text(
@@ -190,8 +213,8 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                             });
                           },
                           controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: kSecondaryColor, // Change the color of the checkbox when selected
-                          checkColor: Colors.white, // Change the color of the checkmark
+                          activeColor: kSecondaryColor,
+                          checkColor: Colors.white,
                         );
                       }).toList(),
                     ),
@@ -206,7 +229,7 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey), // Change border color
+                border: Border.all(color: Colors.grey),
               ),
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: Row(
@@ -216,22 +239,21 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                     Icons.video_library,
                     color: kSecondaryColor,
                   ),
-                  SizedBox(width: 10), // Add spacing between icon and text
+                  SizedBox(width: 10),
                   Text(
                     'Choose Video',
                     style: TextStyle(
-                      color: Colors.black, // Change text color
+                      color: Colors.black,
                       fontSize: 16,
-                      fontWeight: FontWeight.bold, // Make text bold
-                      fontFamily: 'Roboto', // Change font family
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 10), // Add some space between button and file name
-          // Display file name if a file is selected
+          SizedBox(height: 10),
           fileName != null
               ? Text(
             'File Selected: $fileName',
@@ -243,32 +265,48 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
               : Container(),
           const SizedBox(height: 10),
           Center(
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FormHelper.submitButton("Cancel", (){
-                        Navigator.pushReplacement(context, MaterialPageRoute(
-                            builder: (context) =>  ViewVideoTherapistPage(userData:widget.userData)),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FormHelper.submitButton(
+                      "Cancel",
+                          () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewVideoTherapistPage(userData: widget.userData),
+                          ),
                         );
                       },
-                        btnColor: Colors.grey,
-                        txtColor: Colors.black,
-                        borderRadius: 10,
-                        borderColor: Colors.grey,
-                        fontSize: 16,
-                      ),
-                      SizedBox(width: 20),
-                      FormHelper.submitButton(
-                        "Save", () async {
-                        if(validateAndSave() && selectedVideo != null){
+                      btnColor: Colors.grey,
+                      txtColor: Colors.black,
+                      borderRadius: 10,
+                      borderColor: Colors.grey,
+                      fontSize: 16,
+                    ),
+                    SizedBox(width: 20),
+                    FormHelper.submitButton(
+                      "Save",
+                          () async {
+                        if (validateAndSave() && selectedVideo != null) {
                           setState(() {
                             isAPICallProcess = true;
                           });
 
-                          String? videoURL = await FirebaseStorageHelper.uploadVideo(selectedVideo!.path!);
+                          String? videoURL = await FirebaseStorageHelper.uploadVideo(selectedVideo!.path);
                           print(videoURL);
+                          String? thumbnailPath = await generateThumbnail(videoURL!);
+
+                          if (thumbnailPath != null) {
+                            // Upload thumbnail
+                            String? uploadedThumbnailUrl = await FirebaseStorageHelper.uploadThumbnail(thumbnailPath);
+                            print(uploadedThumbnailUrl);
+                            setState(() {
+                              thumbnailUrl = uploadedThumbnailUrl;
+                            });
+                          }
 
                           VideoModel model = VideoModel(
                             userId: widget.userData.data!.id,
@@ -276,6 +314,7 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                             videoDescription: videoDescription!,
                             childId: selectedChildren,
                             file: videoURL!,
+                            thumbnailPath: thumbnailUrl!,
                           );
 
                           APIService.createVideo(model).then((response) {
@@ -286,17 +325,18 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                             });
                             if (response != null) {
                               FormHelper.showSimpleAlertDialog(
-                                context, Config.appName,
-                                "Video uploaded", "OK", () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ViewVideoTherapistPage(
-                                            userData: widget.userData),
-                                  ),
-                                );
-                              },
+                                context,
+                                Config.appName,
+                                "Video uploaded",
+                                "OK",
+                                    () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ViewVideoTherapistPage(userData: widget.userData),
+                                    ),
+                                  );
+                                },
                               );
                             } else {
                               FormHelper.showSimpleAlertDialog(
@@ -310,24 +350,24 @@ class _createVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                               );
                             }
                           });
-
                         }
                       },
-                        btnColor: Colors.pink,
-                        txtColor: Colors.white,
-                        borderRadius: 10,
-                        fontSize: 16,
-                        borderColor: Colors.pink,
-                      ),
-                    ],
-                  )
-                ],
-              )
+                      btnColor: Colors.pink,
+                      txtColor: Colors.white,
+                      borderRadius: 10,
+                      fontSize: 16,
+                      borderColor: Colors.pink,
+                    ),
+                  ],
+                )
+              ],
+            ),
           )
         ],
-      )
+      ),
     );
   }
+
   bool validateAndSave() {
     print("Validate and Save method is called");
     final form = globalFormKey.currentState;

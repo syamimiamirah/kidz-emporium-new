@@ -45,14 +45,14 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
     }
   }
 
-  Future<String?> generateThumbnail(String videoUrl) async {
-    final thumbnailUrl = await VideoThumbnail.thumbnailFile(
-      video: videoUrl,
-      thumbnailPath: (await getTemporaryDirectory()).path,
-      imageFormat: ImageFormat.WEBP,
-    );
-    return thumbnailUrl;
-  }
+  // Future<String?> generateThumbnail(String videoUrl) async {
+  //   final thumbnailUrl = await VideoThumbnail.thumbnailFile(
+  //     video: videoUrl,
+  //     thumbnailPath: (await getTemporaryDirectory()).path,
+  //     imageFormat: ImageFormat.WEBP,
+  //   );
+  //   return thumbnailUrl;
+  // }
 
   void _deleteVideo(int index) {
     setState(() {
@@ -60,6 +60,7 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
     });
   }
 
+  // Update the build method to use the thumbnailUrl field
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,42 +88,19 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
               child: ListView.builder(
                 itemCount: videos.length,
                 itemBuilder: (context, index) {
-                  return Dismissible(
-                    key: Key(videos[index].id ?? ''), // Provide a unique key for each item
-                    onDismissed: (direction) async {
-                      String? videoId = videos[index].id;
-                      String? videoPath = videos[index].file;
-
-                      // Ensure the reminderId is not null before attempting deletion
-                      if (videoId != null) {
-                        bool deleteConfirmed = await showDeleteConfirmationDialog(context);
-
-                        if (deleteConfirmed) {
-                          await FirebaseStorageHelper.deleteVideo(videoPath);
-                          bool deleteSuccess = await APIService.deleteVideo(videoId);
-
-                          if (deleteSuccess) {
-                            setState(() {
-                              videos!.removeAt(index);
-                            });
-
-                            showAlertDialog(context, 'Video deleted successfully');
-                          } else {
-                            showAlertDialog(context, 'Failed to delete video');
-                          }
-                        }
-                      }
-                    },
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: BorderSide(color: Colors.grey.shade300, width: 1),
                     ),
-                    child: GestureDetector(
+                    child: ListTile(
+                      title: Text(videos[index].videoTitle, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                      subtitle: Text(
+                          videos[index].videoDescription,
+                          maxLines: 4, // Limit to 3 lines
+                          overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14.0,)),
+                      leading: videos[index].thumbnailPath != null ? Image.network(videos[index].thumbnailPath!) : SizedBox.shrink(),
                       onTap: () {
                         Navigator.push(
                           context, MaterialPageRoute(
@@ -134,27 +112,6 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
                         );
                         print('Video tapped: ${videos[index].videoTitle}');
                       },
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                          side: BorderSide(color: Colors.grey.shade300, width: 1),
-                        ),
-                        child: ListTile(
-                          title: Text(videos[index].videoTitle),
-                          subtitle: Text(videos[index].videoDescription),
-                          leading: FutureBuilder<String?>(
-                            future: generateThumbnail(videos[index].file),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data!.isNotEmpty) {
-                                return Image.file(File(snapshot.data!));
-                              } else {
-                                return SizedBox.shrink();
-                              }
-                            },
-                          ),
-                        ),
-                      ),
                     ),
                   );
                 },
@@ -177,6 +134,7 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
       ),
     );
   }
+
   Future<bool> showDeleteConfirmationDialog(BuildContext context) async {
     return await showDialog(
       context: context,

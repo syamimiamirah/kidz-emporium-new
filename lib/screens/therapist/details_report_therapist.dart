@@ -14,6 +14,7 @@ import '../../models/login_response_model.dart';
 import '../../models/report_model.dart';
 import '../../models/user_model.dart';
 import '../../services/api_service.dart';
+import '../../services/firebase_storage_service.dart';
 import 'create_report_therapist.dart';
 import 'dart:io';
 
@@ -211,7 +212,7 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
                   ? PDFView(
                 filePath: localPdfPath,
                 enableSwipe: true,
-                swipeHorizontal: true,
+                swipeHorizontal: true, // Set to false for vertical scrolling
                 autoSpacing: true, // Set to true for automatic spacing between pages
                 pageFling: true, // Enable page fling for smoother navigation
                 onError: (error) {
@@ -223,7 +224,6 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
               )
                   : Center(child: Text('PDF file not available')),
             ),
-
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -231,6 +231,7 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
                 ElevatedButton(
                   onPressed: () async {
                     bool deleteSuccess = await APIService.deleteReport(id!);
+                    FirebaseStorageHelper.deleteFile(pdfUrl);
                     if (deleteSuccess) {
                       showDialog(
                         context: context,

@@ -299,7 +299,12 @@ class _FAQPageState extends State<FAQPage> {
       if (!foundResponse) {
         // If no response is found, display "I do not have information for that"
         setState(() {
-          faqMessages.add(FAQMessage(text: 'Sorry, I do not have information for that.', isQuestion: false));
+          faqMessages.add(FAQMessage(text: 'Sorry, I do not have information for that. For further information, you can contact us through these platforms:\n\n'
+              'Phone: 03 - 89122455 or 017 - 5277473 \n\n'
+              'Email: emporiumtherapy@gmail.com \n\n'
+              'Facebook: www.facebook.com/kidzemporiumtherapycenter\n\n'
+              'Instagram: www.instagram.com/kidzemporiumtherapy\n\n'
+              'Tiktok: www.tiktok.com/@kidzemporiumtherapy', isQuestion: false));
         });
       }
     } else {
@@ -359,7 +364,13 @@ class _FAQPageState extends State<FAQPage> {
       );
     } else {
       return FAQResponse(
-        text: 'Sorry, I don\'t have information about that.',
+        text: 'Sorry, I don\'t have information about that.\n\n'
+              'For further information, you can contact us through these platforms:\n\n'
+              'Phone: 03 - 89122455 or 017 - 5277473 \n\n'
+              'Email: emporiumtherapy@gmail.com \n\n'
+              'Facebook: www.facebook.com/kidzemporiumtherapycenter\n\n'
+              'Instagram: www.instagram.com/kidzemporiumtherapy\n\n'
+              'Tiktok: www.tiktok.com/@kidzemporiumtherapy',
         image: null,
       );
     }

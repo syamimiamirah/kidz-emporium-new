@@ -6,6 +6,7 @@ class VideoModel {
   String videoDescription;
   List <String> childId;
   String file;
+  final String? thumbnailPath;
 
   VideoModel({
     required this.userId,
@@ -14,6 +15,7 @@ class VideoModel {
     required this.videoDescription,
     required this.childId,
     required this.file,
+    this.thumbnailPath,
 });
 
   factory VideoModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class VideoModel {
         videoDescription: json['videoDescription'] ?? '',
         childId: List<String>.from(json['childId'] ?? []),
         file: json['filePath'] ?? '',
+        thumbnailPath: json['thumbnail'],
     );
   }
 
@@ -34,6 +37,7 @@ class VideoModel {
       'videoDescription': videoDescription,
       'childId': childId,
       'filePath': file,
+      'thumbnail': thumbnailPath,
       '_id': id,
     };
     if(id != null){
