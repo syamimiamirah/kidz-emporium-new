@@ -35,11 +35,40 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
   List<String> selectedTherapists = [];
   List<UserModel> therapists = [];
 
+  // Future<void> _loadTherapists() async {
+  //   try {
+  //     List<UserModel> allUsers = await APIService.getAllUsers();
+  //     // Filter users by role "Therapist"
+  //     therapists = allUsers.where((user) => user.role == "Therapist").toList();
+  //
+  //     setState(() {});
+  //   } catch (error) {
+  //     print('Error loading therapists: $error');
+  //   }
+  // }
+
   Future<void> _loadTherapists() async {
     try {
       List<UserModel> allUsers = await APIService.getAllUsers();
-      // Filter users by role "Therapist"
-      therapists = allUsers.where((user) => user.role == "Therapist").toList();
+      List<UserModel> therapistList = allUsers.where((user) => user.role == "Therapist").toList();
+
+      // Separate lists for available and unavailable therapists
+      List<UserModel> availableTherapists = [];
+      List<UserModel> unavailableTherapists = [];
+
+      for (var therapist in therapistList) {
+        bool isAvailable = await APIService.checkTherapistAvailability(therapist.id!, fromDate, toDate);
+        if (isAvailable) {
+          availableTherapists.add(therapist);
+        } else {
+          unavailableTherapists.add(therapist);
+        }
+      }
+
+      // Update therapists based on selection or availability
+      therapists = selectedTherapists.isEmpty
+          ? availableTherapists
+          : therapists.where((therapist) => selectedTherapists.contains(therapist.id) || availableTherapists.contains(therapist)).toList();
 
       setState(() {});
     } catch (error) {
@@ -47,10 +76,32 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
     }
   }
 
+
+  // Future<void> _loadTherapists() async {
+  //   try {
+  //     List<UserModel> allUsers = await APIService.getAllUsers();
+  //     List<UserModel> therapistList = allUsers.where((user) => user.role == "Therapist").toList();
+  //
+  //     therapists = [];
+  //     for (var therapist in therapistList) {
+  //       bool isAvailable = await APIService.checkTherapistAvailability(therapist.id!, fromDate, toDate);
+  //       if (isAvailable) {
+  //         therapists.add(therapist);
+  //       }
+  //     }
+  //
+  //     setState(() {});
+  //   } catch (error) {
+  //     print('Error loading therapists: $error');
+  //   }
+  // }
+
+
+
+
   @override
   void initState() {
     super.initState();
-    _loadTherapists();
     if (widget.userData != null && widget.userData.data != null) {
       print("userData: ${widget.userData.data!.id}");
       fromDate = DateTime.now();
@@ -60,6 +111,7 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
       // Handle the case where userData or userData.data is null
       print("Error: userData or userData.data is null");
     }
+    _loadTherapists();
   }
 
   @override
@@ -287,35 +339,109 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
                     ),
                     Column(
                       children: therapists.map((therapist) {
-                        return CheckboxListTile(
-                          title: Text(
-                            therapist.name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        bool isSelected = selectedTherapists.contains(therapist.id);
+                        return ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                therapist.name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                decoration: BoxDecoration(
+                                  color:Colors.green,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text('Available',
+                                  style: TextStyle(color: Colors.white, fontSize: 14),
+                                ),
+                              ),
+                            ],
                           ),
-                          value: selectedTherapists.contains(therapist.id),
-                          onChanged: (bool? value) {
+                          trailing: isSelected ? Icon(Icons.check, color: kPrimaryColor) : null,
+                          onTap: () {
                             setState(() {
-                              if (value != null && value) {
-                                selectedTherapists.add(therapist.id!);
-                              } else {
+                              if (isSelected) {
                                 selectedTherapists.remove(therapist.id);
+                              } else {
+                                selectedTherapists.add(therapist.id!);
                               }
                             });
                           },
-                          controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: kPrimaryColor, // Change the color of the checkbox when selected
-                          checkColor: Colors.white, // Change the color of the checkmark
                         );
                       }).toList(),
                     ),
+
                   ],
                 ),
               ),
             ),
           ),
+          // Center(
+          //   child: Padding(
+          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          //     child: Container(
+          //       decoration: BoxDecoration(
+          //         borderRadius: BorderRadius.circular(10),
+          //         border: Border.all(color: Colors.grey),
+          //       ),
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children:[
+          //           Row(
+          //             children: [
+          //               Padding(
+          //                 padding: const EdgeInsets.all(10),
+          //                 child: Icon(
+          //                   Icons.people, // Your desired icon
+          //                   color: kPrimaryColor, // Icon color
+          //                 ),
+          //               ),
+          //               Text(
+          //                 'Therapists',
+          //                 style: TextStyle(
+          //                   fontSize: 16,
+          //                   fontWeight: FontWeight.bold,
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //           Column(
+          //             children: therapists.map((therapist) {
+          //               return CheckboxListTile(
+          //                 title: Text(
+          //                   therapist.name,
+          //                   style: TextStyle(
+          //                     fontSize: 16,
+          //                     fontWeight: FontWeight.w500,
+          //                   ),
+          //                 ),
+          //                 value: selectedTherapists.contains(therapist.id),
+          //                 onChanged: (bool? value) {
+          //                   setState(() {
+          //                     if (value != null && value) {
+          //                       selectedTherapists.add(therapist.id!);
+          //                     } else {
+          //                       selectedTherapists.remove(therapist.id);
+          //                     }
+          //                   });
+          //                 },
+          //                 controlAffinity: ListTileControlAffinity.leading,
+          //                 activeColor: kPrimaryColor, // Change the color of the checkbox when selected
+          //                 checkColor: Colors.white, // Change the color of the checkmark
+          //               );
+          //             }).toList(),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 10),
           Center(
             child: Column(
@@ -419,6 +545,7 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
     setState(()
     => fromDate = date
     );
+    _loadTherapists();
   }
 
   Future pickToDateTime({required bool pickDate}) async{
@@ -431,6 +558,7 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
 
     setState(()
     => toDate = date);
+    _loadTherapists();
   }
 
   Future<DateTime?> pickDateTime(

@@ -204,7 +204,7 @@ class _ViewTherapistAdminPageState extends State<ViewTherapistAdminPage> {
           );
         },
         child: Icon(Icons.add, color: Colors.white),
-        backgroundColor: kSecondaryColor,
+        backgroundColor: Colors.pink,
       ),
     );
   }

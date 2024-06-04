@@ -93,43 +93,39 @@ class _ViewChildTherapistPageState extends State<ViewChildTherapistPage> {
                 itemCount: filteredChildren.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    elevation: 5,
+                    color: Colors.white,
+                    elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                       side: BorderSide(color: Colors.grey.shade300, width: 1),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(10),
+                      minVerticalPadding: 20,
+                      leading: CircleAvatar(
+                        radius: 30,
+                        backgroundImage: AssetImage(getImagePathByGender(filteredChildren[index].gender ?? '')),
+                      ),
+                      title: Text(
+                        filteredChildren[index].childName ?? '',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundImage: AssetImage(getImagePathByGender(widget.children[index].gender ?? '')),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
                           Text(
-                            filteredChildren[index].childName ?? '',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            "Birth Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(filteredChildren[index].birthDate as String))}",
+                            style: TextStyle(fontSize: 16, color: Colors.black),
                           ),
-                          SizedBox(height: 10),
-                          Text(
-                            "Birth Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(widget.children[index].birthDate as String))}",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 10),
                           Text(
                             "Program: ${filteredChildren[index].program ?? 'N/A'}",
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, color: Colors.black),
                           ),
                           // Add any other details as needed
                         ],
                       ),
+                      // Add any other child details as needed
                     ),
                   );
                 },

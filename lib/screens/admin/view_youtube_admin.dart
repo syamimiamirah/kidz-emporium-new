@@ -47,7 +47,7 @@ class _ViewYoutubeAdminPageState extends State<ViewYoutubeAdmin> {
       appBar: AppBar(
         title: Text('YouTube Video List'),
         centerTitle: true,
-        backgroundColor: kPrimaryColor,
+        backgroundColor: kSecondaryColor,
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
