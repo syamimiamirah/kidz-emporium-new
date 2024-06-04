@@ -130,7 +130,7 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
           );
         },
         child: Icon(Icons.add),
-        backgroundColor: kSecondaryColor,
+        backgroundColor: Colors.pink,
       ),
     );
   }

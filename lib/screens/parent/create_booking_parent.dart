@@ -510,6 +510,12 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
         required bool pickDate,
         DateTime? firstDate,
       }) async {
+
+    // Adjust initial date if it's Sunday or Monday
+    while (initialDate.weekday == DateTime.sunday || initialDate.weekday == DateTime.monday) {
+      initialDate = initialDate.add(Duration(days: 1));
+    }
+
     if (pickDate) {
       final date = await showDatePicker(
         context: context,
@@ -539,7 +545,6 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
       if (date == null) return null;
 
       final time = Duration(hours: initialDate.hour, minutes: initialDate.minute);
-
       return date.add(time);
     } else {
       final timeOfDay = await showTimePicker(
@@ -564,6 +569,7 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
       return date.add(time);
     }
   }
+
 
 }
 

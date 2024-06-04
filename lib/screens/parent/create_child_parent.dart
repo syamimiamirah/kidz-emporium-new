@@ -334,10 +334,10 @@ class _createChildParentPageState extends State<CreateChildParentPage>{
                             });
                         }
                     },
-                      btnColor: kSecondaryColor,
+                      btnColor: Colors.pink,
                       txtColor: Colors.white,
                       borderRadius: 10,
-                      borderColor: kSecondaryColor,
+                      borderColor: Colors.pink,
                       fontSize: 16,
                     ),
                   ],

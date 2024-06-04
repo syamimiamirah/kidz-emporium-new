@@ -364,10 +364,10 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
                         }
                       },
                         fontSize: 16,
-                        btnColor: kSecondaryColor,
+                        btnColor: Colors.pink,
                         txtColor: Colors.white,
                         borderRadius: 10,
-                        borderColor: kSecondaryColor,),
+                        borderColor: Colors.pink,),
                     ],
                   )
                 ],

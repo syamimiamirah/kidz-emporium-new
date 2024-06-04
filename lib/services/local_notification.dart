@@ -49,6 +49,36 @@ class LocalNotification {
     );
   }
 
+  // static Future scheduleNotification({
+  //   required String title,
+  //   required String body,
+  //   required String payload,
+  // }) async {
+  //   // Create the Android notification details
+  //   const AndroidNotificationDetails androidNotificationDetails =
+  //   AndroidNotificationDetails(
+  //     'your_channel_id',
+  //     'your_channel_name',
+  //     channelDescription: 'Reminder',
+  //     importance: Importance.max,
+  //     priority: Priority.high,
+  //   );
+  //   const NotificationDetails notificationDetails =
+  //   NotificationDetails(android: androidNotificationDetails);
+  //
+  //   // Schedule the notification to be displayed
+  //   await _flutterLocalNotificationsPlugin.zonedSchedule(
+  //     0, // Notification ID
+  //     title, // Notification title
+  //     body, // Notification body
+  //     tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)), // Schedule time
+  //     notificationDetails,
+  //     androidAllowWhileIdle: true,
+  //     uiLocalNotificationDateInterpretation:
+  //     UILocalNotificationDateInterpretation.absoluteTime,
+  //   );
+  // }
+
   static Future showPeriodicNotification({
     required String title, required String body, required String payload
   })async {

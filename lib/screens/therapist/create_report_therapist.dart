@@ -307,10 +307,10 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
                           });
                         }},
                         fontSize: 16,
-                        btnColor: Colors.orange,
-                        txtColor: Colors.black,
+                        btnColor: kPrimaryColor,
+                        txtColor: Colors.white,
                         borderRadius: 10,
-                        borderColor: Colors.orange,),
+                        borderColor: kPrimaryColor,),
                     ],
                   ),
                 ],

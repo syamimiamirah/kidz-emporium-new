@@ -142,7 +142,7 @@ class _ViewChildParentPageState extends State<ViewChildParentPage> {
                           ],
                         ),
                         trailing: IconButton(
-                          icon: Icon(Icons.edit, color: Colors.white),
+                          icon: Icon(Icons.edit, color: Colors.black),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -172,7 +172,7 @@ class _ViewChildParentPageState extends State<ViewChildParentPage> {
           );
         },
         child: Icon(Icons.add, color: Colors.white),
-        backgroundColor: kSecondaryColor,
+        backgroundColor: Colors.pink,
       ),
     );
   }
