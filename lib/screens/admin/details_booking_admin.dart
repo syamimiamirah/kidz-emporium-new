@@ -119,7 +119,7 @@ class _BookingDetailsTherapistPageState extends State<BookingDetailsAdminPage> {
                           },
                           style: ElevatedButton.styleFrom(
                             primary: kSecondaryColor,
-                            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                            padding: EdgeInsets.symmetric(horizontal: 23, vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -153,7 +153,7 @@ class _BookingDetailsTherapistPageState extends State<BookingDetailsAdminPage> {
                           },
                           style: ElevatedButton.styleFrom(
                             primary: kPrimaryColor,
-                            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

@@ -3,11 +3,14 @@ import 'package:intl/intl.dart';
 import 'package:kidz_emporium/Screens/parent/update_booking_parent.dart';
 import 'package:kidz_emporium/models/booking_model.dart';
 import 'package:kidz_emporium/models/child_model.dart';
+import 'package:kidz_emporium/models/livestream_model.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 import 'package:kidz_emporium/models/user_model.dart'; // Import UserModel
+import 'package:kidz_emporium/screens/parent/view_livestream_parent.dart';
 
 import '../../contants.dart';
 import '../../models/login_response_model.dart';
+import '../../services/api_service.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final LoginResponseModel userData;
@@ -55,6 +58,21 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         title: Text('Booking Details'),
         centerTitle: true,
         backgroundColor: kPrimaryColor,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.video_call),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewLivestreamPage(
+                        userData: widget.userData,
+                        bookingId: widget.booking.id!),
+                    )
+                );
+              } ,
+          )
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),

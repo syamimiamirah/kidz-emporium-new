@@ -448,7 +448,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
                   .primaryColor),
               SizedBox(width: 10),
               Container(
-                width: 150, // Adjust the width as needed
+                width: 130, // Adjust the width as needed
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       vertical: 10, horizontal: 12),
@@ -472,7 +472,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
                   .primaryColor),
               SizedBox(width: 10),
               Container(
-                width: 150, // Adjust the width as needed
+                width: 130, // Adjust the width as needed
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       vertical: 10, horizontal: 12),
