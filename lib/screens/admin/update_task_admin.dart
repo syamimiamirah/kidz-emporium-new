@@ -36,6 +36,8 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
   late String description = "";
   List<String> selectedTherapists = [];
   List<UserModel> therapists = [];
+  List<UserModel> savedTherapists = [];
+  List<UserModel> remainingTherapists = [];
 
   @override
   void initState() {
@@ -66,14 +68,65 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
   Future<void> _loadTherapists() async {
     try {
       List<UserModel> allUsers = await APIService.getAllUsers();
-      // Filter users by role "Therapist"
-      therapists = allUsers.where((user) => user.role == "Therapist").toList();
+      List<UserModel> therapistList = allUsers.where((user) => user.role == "Therapist").toList();
 
-      setState(() {});
+      // Separate therapists into saved and remaining
+      List<UserModel> availableTherapists = [];
+      List<UserModel> unavailableTherapists = [];
+
+      for (var therapist in therapistList) {
+        if (selectedTherapists.contains(therapist.id)) {
+          savedTherapists.add(therapist);
+        } else {
+          unavailableTherapists.add(therapist);
+        }
+      }
+
+      setState(() {
+        savedTherapists = savedTherapists;
+        remainingTherapists = unavailableTherapists;
+      });
+
+      // Check availability of therapists only when the date is changed
+      // if (fromDate != null && toDate != null) {
+      //   await _checkTherapistsAvailability();
+      // }
     } catch (error) {
       print('Error loading therapists: $error');
     }
   }
+
+  Future<void> _checkTherapistsAvailability() async {
+    try {
+      List<UserModel> allUsers = await APIService.getAllUsers();
+      List<UserModel> therapistList = allUsers.where((user) => user.role == "Therapist").toList();
+
+      List<UserModel> availableTherapists = [];
+      List<UserModel> unavailableTherapists = [];
+
+      for (var therapist in therapistList) {
+        bool isAvailable = await APIService.checkTherapistAvailability(
+          therapist.id!,
+          fromDate,
+          toDate,
+        );
+        if (isAvailable) {
+          availableTherapists.add(therapist);
+        } else {
+          unavailableTherapists.add(therapist);
+        }
+      }
+
+      setState(() {
+        savedTherapists = availableTherapists;
+        remainingTherapists = unavailableTherapists;
+      });
+    } catch (error) {
+      print('Error loading therapists availability: $error');
+    }
+  }
+
+
   Future<void> fetchTaskDetails() async {
     try{
       TaskModel? task = await APIService.getTaskDetails(widget.taskId);
@@ -299,48 +352,82 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children:[
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Icon(
+                    children: [
+                      // Header for available therapists
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: [
+                            Icon(
                               Icons.people, // Your desired icon
                               color: kPrimaryColor, // Icon color
                             ),
-                          ),
-                          Text(
-                            'Therapists',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: therapists.map((therapist) {
-                          return CheckboxListTile(
-                            title: Text(
-                              therapist.name,
+                            SizedBox(width: 10),
+                            Text(
+                              'Selected Therapists',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            value: selectedTherapists.contains(therapist.id),
-                            onChanged: (bool? value) {
+                          ],
+                        ),
+                      ),
+                      // List of available therapists
+                      Column(
+                        children: savedTherapists.map((therapist) {
+                          bool isSelected = selectedTherapists.contains(therapist.id);
+                          return ListTile(
+                            title: Text(therapist.name ?? ''),
+                            trailing: isSelected ? Icon(Icons.check_circle, color: kPrimaryColor) : null,
+                            onTap: () {
                               setState(() {
-                                if (value != null && value) {
-                                  selectedTherapists.add(therapist.id!);
-                                } else {
+                                if (isSelected) {
                                   selectedTherapists.remove(therapist.id);
+                                } else {
+                                  selectedTherapists.add(therapist.id!);
                                 }
                               });
                             },
-                            controlAffinity: ListTileControlAffinity.leading,
-                            activeColor: kPrimaryColor, // Change the color of the checkbox when selected
-                            checkColor: Colors.white, // Change the color of the checkmark
+                          );
+                        }).toList(),
+                      ),
+                      // Divider between available and unavailable therapists
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Divider(color: Colors.grey),
+                      ),
+                      // Header for unavailable therapists
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.people_outline, // Your desired icon
+                              color: Colors.grey, // Icon color
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              'Unavailable Therapists',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // List of unavailable therapists
+                      Column(
+                        children: remainingTherapists.map((therapist) {
+                          return ListTile(
+                            title: Text(
+                              therapist.name ?? '',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            trailing: Icon(Icons.block, color: Colors.red),
+                            onTap: null, // Non-clickable
                           );
                         }).toList(),
                       ),
@@ -349,6 +436,7 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
                 ),
               ),
             ),
+
             const SizedBox(height: 10),
             Center(
               child: Column(
@@ -404,6 +492,7 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
     setState(()
     => fromDate = date
     );
+    await _checkTherapistsAvailability();
   }
 
   Future pickToDateTime({required bool pickDate}) async{
@@ -416,6 +505,7 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
 
     setState(()
     => toDate = date);
+    await _checkTherapistsAvailability();
   }
 
   Future<DateTime?> pickDateTime(
@@ -423,12 +513,24 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
         required bool pickDate,
         DateTime? firstDate,
       }) async{
+
+    while (initialDate.weekday == DateTime.sunday || initialDate.weekday == DateTime.monday) {
+      initialDate = initialDate.add(Duration(days: 1));
+    }
+
     if (pickDate){
       final date = await showDatePicker(
         context: context,
         initialDate: initialDate,
         firstDate: firstDate ?? DateTime(2015, 8),
         lastDate: DateTime(2101),
+        selectableDayPredicate: (DateTime day) {
+          // Disable Sunday and Monday
+          if (day.weekday == DateTime.sunday || day.weekday == DateTime.monday) {
+            return false;
+          }
+          return true;
+        },
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.light().copyWith(
@@ -479,13 +581,14 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
       TaskModel? task = await APIService.getTaskDetails(widget.taskId);
 
       print(Utils.parseStringToDateTime(task!.fromDate));
-      if (fromDate != Utils.parseStringToDateTime(task!.fromDate) || toDate != Utils.parseStringToDateTime(task!.toDate)) {
-        // Timeslot is being updated, perform the availability check
-        checkTherapistAvailabilityAndUpdate();
-      } else {
-        // Timeslot remains the same, update only the task details
-        updateTaskDetails();
-      }
+      updateTaskDetails();
+      // if (fromDate != Utils.parseStringToDateTime(task!.fromDate) || toDate != Utils.parseStringToDateTime(task!.toDate)) {
+      //   // Timeslot is being updated, perform the availability check
+      //   checkTherapistAvailabilityAndUpdate();
+      // } else {
+      //   // Timeslot remains the same, update only the task details
+      //   updateTaskDetails();
+      // }
       return true;
     } else {
       return false;

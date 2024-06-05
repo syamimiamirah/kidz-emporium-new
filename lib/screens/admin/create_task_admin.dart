@@ -33,19 +33,8 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
   String? taskTitle;
   String? description;
   List<String> selectedTherapists = [];
-  List<UserModel> therapists = [];
-
-  // Future<void> _loadTherapists() async {
-  //   try {
-  //     List<UserModel> allUsers = await APIService.getAllUsers();
-  //     // Filter users by role "Therapist"
-  //     therapists = allUsers.where((user) => user.role == "Therapist").toList();
-  //
-  //     setState(() {});
-  //   } catch (error) {
-  //     print('Error loading therapists: $error');
-  //   }
-  // }
+  List<UserModel> availableTherapists = [];
+  List<UserModel> unavailableTherapists = [];
 
   Future<void> _loadTherapists() async {
     try {
@@ -53,51 +42,26 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
       List<UserModel> therapistList = allUsers.where((user) => user.role == "Therapist").toList();
 
       // Separate lists for available and unavailable therapists
-      List<UserModel> availableTherapists = [];
-      List<UserModel> unavailableTherapists = [];
+      List<UserModel> availableList = [];
+      List<UserModel> unavailableList = [];
 
       for (var therapist in therapistList) {
         bool isAvailable = await APIService.checkTherapistAvailability(therapist.id!, fromDate, toDate);
         if (isAvailable) {
-          availableTherapists.add(therapist);
+          availableList.add(therapist);
         } else {
-          unavailableTherapists.add(therapist);
+          unavailableList.add(therapist);
         }
       }
 
-      // Update therapists based on selection or availability
-      therapists = selectedTherapists.isEmpty
-          ? availableTherapists
-          : therapists.where((therapist) => selectedTherapists.contains(therapist.id) || availableTherapists.contains(therapist)).toList();
-
-      setState(() {});
+      setState(() {
+        availableTherapists = availableList;
+        unavailableTherapists = unavailableList;
+      });
     } catch (error) {
       print('Error loading therapists: $error');
     }
   }
-
-
-  // Future<void> _loadTherapists() async {
-  //   try {
-  //     List<UserModel> allUsers = await APIService.getAllUsers();
-  //     List<UserModel> therapistList = allUsers.where((user) => user.role == "Therapist").toList();
-  //
-  //     therapists = [];
-  //     for (var therapist in therapistList) {
-  //       bool isAvailable = await APIService.checkTherapistAvailability(therapist.id!, fromDate, toDate);
-  //       if (isAvailable) {
-  //         therapists.add(therapist);
-  //       }
-  //     }
-  //
-  //     setState(() {});
-  //   } catch (error) {
-  //     print('Error loading therapists: $error');
-  //   }
-  // }
-
-
-
 
   @override
   void initState() {
@@ -318,7 +282,7 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children:[
+                  children: [
                     Row(
                       children: [
                         Padding(
@@ -338,32 +302,11 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
                       ],
                     ),
                     Column(
-                      children: therapists.map((therapist) {
+                      children: availableTherapists.map((therapist) {
                         bool isSelected = selectedTherapists.contains(therapist.id);
                         return ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                therapist.name,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                                decoration: BoxDecoration(
-                                  color:Colors.green,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text('Available',
-                                  style: TextStyle(color: Colors.white, fontSize: 14),
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: isSelected ? Icon(Icons.check, color: kPrimaryColor) : null,
+                          title: Text(therapist.name ?? ''),
+                          trailing: isSelected ? Icon(Icons.check_circle, color: kPrimaryColor) : null,
                           onTap: () {
                             setState(() {
                               if (isSelected) {
@@ -376,72 +319,51 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
                         );
                       }).toList(),
                     ),
-
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(color: Colors.grey),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Icon(
+                                Icons.people_outline, // Your desired icon
+                                color: Colors.grey, // Icon color
+                              ),
+                            ),
+                            Text(
+                              'Unavailable Therapists',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: unavailableTherapists.map((therapist) {
+                            return ListTile(
+                              title: Text(
+                                therapist.name ?? '',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              trailing: Icon(Icons.block, color: Colors.red),
+                              onTap: null, // Non-clickable
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-          // Center(
-          //   child: Padding(
-          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     child: Container(
-          //       decoration: BoxDecoration(
-          //         borderRadius: BorderRadius.circular(10),
-          //         border: Border.all(color: Colors.grey),
-          //       ),
-          //       child: Column(
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children:[
-          //           Row(
-          //             children: [
-          //               Padding(
-          //                 padding: const EdgeInsets.all(10),
-          //                 child: Icon(
-          //                   Icons.people, // Your desired icon
-          //                   color: kPrimaryColor, // Icon color
-          //                 ),
-          //               ),
-          //               Text(
-          //                 'Therapists',
-          //                 style: TextStyle(
-          //                   fontSize: 16,
-          //                   fontWeight: FontWeight.bold,
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //           Column(
-          //             children: therapists.map((therapist) {
-          //               return CheckboxListTile(
-          //                 title: Text(
-          //                   therapist.name,
-          //                   style: TextStyle(
-          //                     fontSize: 16,
-          //                     fontWeight: FontWeight.w500,
-          //                   ),
-          //                 ),
-          //                 value: selectedTherapists.contains(therapist.id),
-          //                 onChanged: (bool? value) {
-          //                   setState(() {
-          //                     if (value != null && value) {
-          //                       selectedTherapists.add(therapist.id!);
-          //                     } else {
-          //                       selectedTherapists.remove(therapist.id);
-          //                     }
-          //                   });
-          //                 },
-          //                 controlAffinity: ListTileControlAffinity.leading,
-          //                 activeColor: kPrimaryColor, // Change the color of the checkbox when selected
-          //                 checkColor: Colors.white, // Change the color of the checkmark
-          //               );
-          //             }).toList(),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
           const SizedBox(height: 10),
           Center(
             child: Column(
@@ -566,12 +488,24 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
         required bool pickDate,
         DateTime? firstDate,
       }) async{
+
+    while (initialDate.weekday == DateTime.sunday || initialDate.weekday == DateTime.monday) {
+      initialDate = initialDate.add(Duration(days: 1));
+    }
+
     if (pickDate){
       final date = await showDatePicker(
         context: context,
         initialDate: initialDate,
         firstDate: firstDate ?? DateTime(2015, 8),
         lastDate: DateTime(2101),
+        selectableDayPredicate: (DateTime day) {
+          // Disable Sunday and Monday
+          if (day.weekday == DateTime.sunday || day.weekday == DateTime.monday) {
+            return false;
+          }
+          return true;
+        },
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.light().copyWith(

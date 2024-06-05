@@ -96,6 +96,17 @@ class _BookingDetailsTherapistPageState extends State<BookingDetailsTherapistPag
               Center(
                 child: ElevatedButton(
                   onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BroadcastLivestreamPage(
+                              userData: widget.userData,
+                              bookingId: widget.booking.id!,
+                            ),
+                      ),
+                    );
+
 
                   },
                   style: ElevatedButton.styleFrom(

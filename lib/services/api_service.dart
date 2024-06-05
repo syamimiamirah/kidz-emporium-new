@@ -1481,7 +1481,45 @@ class APIService{
       final Map<String, dynamic> responseData = json.decode(response.body);
       return LivestreamModel.fromJson(responseData);
     } else {
-      throw Exception('Failed to create task');
+      throw Exception('Failed to create meeting');
+    }
+  }
+
+  static Future<LivestreamModel?> getLivestreamDetailsByBookingId(String bookingId) async {
+    try {
+      var url = Uri.http(Config.apiURL, '${Config.getLivestreamDetailsByBookingIdAPI}/$bookingId');
+      print("Request URL: $url");
+
+      var response = await client.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = json.decode(response.body);
+        // Check the type of responseData['success'] and handle accordingly
+        if (responseData != null && responseData['success'] != null) {
+          if (responseData['success'] is List) {
+            if (responseData['success'].isNotEmpty) {
+              return LivestreamModel.fromJson(responseData['success'][0]);
+            } else {
+              return null;
+            }
+          } else if (responseData['success'] is Map<String, dynamic>) {
+            return LivestreamModel.fromJson(responseData['success']);
+          } else {
+            throw Exception('Unexpected response format');
+          }
+        } else {
+          return null;
+        }
+      } else {
+        print('Error response body: ${response.body}');
+        throw Exception('Failed to get meeting details. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error getting meeting details: $error');
+      throw error;
     }
   }
 
