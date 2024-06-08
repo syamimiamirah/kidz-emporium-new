@@ -311,24 +311,24 @@ class _createChildParentPageState extends State<CreateChildParentPage>{
                             });
 
                             if(response != null){
-                              FormHelper.showSimpleAlertDialog(context, Config.appName, "Child Profile created", "OK", () {
+                              _showCustomAlertDialog(context, Config.appName, "Child Profile created", "OK", () {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ViewChildParentPage(userData: widget.userData),
                                   ),
                                 );
-                              },
+                              }, kPrimaryColor,
                               );
                             }else{
-                              FormHelper.showSimpleAlertDialog(
+                              _showCustomAlertDialog(
                                 context,
                                 Config.appName,
                                 "Child profile failed to create",
                                 "OK",
                                   () {
                                     Navigator.of(context).pop();
-                                  },
+                                  }, kPrimaryColor,
                                 );
                               }
                             });
@@ -360,6 +360,26 @@ class _createChildParentPageState extends State<CreateChildParentPage>{
     } else {
       return false;
     }
+  }
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
 }

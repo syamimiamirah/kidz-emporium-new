@@ -300,7 +300,7 @@ class _updateReminderParentPageState extends State<UpdateReminderParentPage>{
                           });
 
                           if (success) {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Reminder updated",
@@ -312,18 +312,18 @@ class _updateReminderParentPageState extends State<UpdateReminderParentPage>{
                                     builder: (context) => ViewReminderParentPage(userData: widget.userData),
                                   ),
                                 );
-                              },
+                              }, kPrimaryColor,
                             );
                           }
                           else {
-                          FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                             context,
                             Config.appName,
                             "Failed to update reminder",
                             "OK",
                           () {
                               Navigator.of(context).pop();
-                              },
+                              }, kPrimaryColor,
                             );
                           }
                           }
@@ -410,6 +410,25 @@ class _updateReminderParentPageState extends State<UpdateReminderParentPage>{
       return false;
     }
   }
-
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }
