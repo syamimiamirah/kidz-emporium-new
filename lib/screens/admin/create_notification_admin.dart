@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:kidz_emporium/Screens/admin/view_booking_admin.dart';
-import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/services/api_service.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 
 import '../../config.dart';
+import '../../contants.dart';
 import '../../models/login_response_model.dart';
 
 class AdminSendMessagePage extends StatefulWidget {
@@ -162,7 +162,7 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                             message,
                           );
                           if (sent) {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Your message has been sent successfully.",
@@ -171,14 +171,14 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        ViewBookingAdminPage(userData: widget.userData),
+                                    builder: (context) => ViewBookingAdminPage(userData: widget.userData),
                                   ),
                                 );
                               },
+                              kPrimaryColor,  // Change this color to the desired color
                             );
                           } else {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Message failed to send",
@@ -186,6 +186,7 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                                   () {
                                 Navigator.of(context).pop();
                               },
+                              kPrimaryColor,  // Change this color to the desired color
                             );
                           }
                         }
@@ -214,5 +215,26 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
     } else {
       return false;
     }
+  }
+
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

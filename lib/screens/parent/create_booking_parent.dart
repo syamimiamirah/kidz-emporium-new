@@ -394,7 +394,7 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
-                                        child: Text('OK'),
+                                        child: Text('OK', style: TextStyle(color: kPrimaryColor),),
                                       ),
                                     ],
                                   );
@@ -415,7 +415,7 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                       },
-                                      child: Text('OK'),
+                                      child: Text('OK', style: TextStyle(color: kPrimaryColor)),
                                     ),
                                   ],
                                 );

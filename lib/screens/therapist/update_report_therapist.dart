@@ -271,7 +271,7 @@ class _updateReportPageState extends State<UpdateReportTherapistPage> {
                           });
 
                           if (success) {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Report updated",
@@ -283,18 +283,18 @@ class _updateReportPageState extends State<UpdateReportTherapistPage> {
                                     builder: (context) => ViewReportTherapistPage(userData: widget.userData),
                                   ),
                                 );
-                              },
+                              }, kPrimaryColor,
                             );
                           }
                           else {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Failed to update report",
                               "OK",
                                   () {
                                 Navigator.of(context).pop();
-                              },
+                              }, kPrimaryColor,
                             );
                           }
                         }
@@ -323,5 +323,25 @@ class _updateReportPageState extends State<UpdateReportTherapistPage> {
     } else {
       return false;
     }
+  }
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

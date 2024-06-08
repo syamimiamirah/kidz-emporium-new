@@ -606,12 +606,12 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
         updateTaskDetails();
       } else {
         // Therapist is not available during the specified time range
-        FormHelper.showSimpleAlertDialog(
+        _showCustomAlertDialog(
           context,
           "Therapist Not Available",
           "The selected therapist is not available during the specified time range.",
           "OK",
-              () => Navigator.of(context).pop(),
+              () => Navigator.of(context).pop(), kPrimaryColor,
         );
       }
     } catch (error) {
@@ -634,7 +634,7 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
       try {
         bool response = await APIService.updateTask(widget.taskId, updatedTask);
         if (response) {
-          FormHelper.showSimpleAlertDialog(
+          _showCustomAlertDialog(
             context,
             "Task Updated",
             "The task details have been successfully updated.",
@@ -648,19 +648,40 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
                           userData: widget.userData,
                         ),
                   ),
-                ),
+                ), kPrimaryColor,
           );
         } else {
-          FormHelper.showSimpleAlertDialog(
+          _showCustomAlertDialog(
             context,
             "Error",
             "Failed to update task details. Please try again.",
             "OK",
-                () => Navigator.of(context).pop(),
+                () => Navigator.of(context).pop(), kPrimaryColor,
           );
         }
       } catch (error) {
         print('Error updating task: $error');
       }
     }
+
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

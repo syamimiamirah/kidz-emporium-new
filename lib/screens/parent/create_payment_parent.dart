@@ -366,7 +366,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 Navigator.of(context).pop();
                 _createBooking();
               },
-              child: Text('OK'),
+              child: Text('OK', style: TextStyle(color: kPrimaryColor)),
             ),
           ],
         );
@@ -386,7 +386,7 @@ class _PaymentPageState extends State<PaymentPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: Text('OK', style: TextStyle(color: kPrimaryColor)),
             ),
           ],
         );
@@ -406,7 +406,7 @@ class _PaymentPageState extends State<PaymentPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: Text('OK',  style: TextStyle(color: kPrimaryColor)),
             ),
           ],
         );

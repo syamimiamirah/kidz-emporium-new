@@ -335,7 +335,7 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
                           });
 
                           if (success) {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Child profile updated",
@@ -347,18 +347,18 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
                                     builder: (context) => ViewChildParentPage(userData: widget.userData),
                                   ),
                                 );
-                              },
+                              }, kPrimaryColor,
                             );
                           }
                           else {
-                            FormHelper.showSimpleAlertDialog(
+                            _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "Failed to update child profile",
                               "OK",
                                   () {
                                 Navigator.of(context).pop();
-                              },
+                              }, kPrimaryColor,
                             );
                           }
                         }
@@ -389,6 +389,25 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
       return false;
     }
   }
-
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 

@@ -249,7 +249,7 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
                                     ),
                                   );
                                 },
-                                child: Text('OK'),
+                                child: Text('OK', style: TextStyle(color: kPrimaryColor)),
                               ),
                             ],
                           );
@@ -267,7 +267,7 @@ class _ReportDetailsPageState extends State<ReportDetailsTherapistPage> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('OK'),
+                                child: Text('OK', style: TextStyle(color: kPrimaryColor)),
                               ),
                             ],
                           );

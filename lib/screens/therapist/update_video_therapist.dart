@@ -301,7 +301,7 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
                               isAPICallProcess = false;
                             });
                             if (success) {
-                              FormHelper.showSimpleAlertDialog(
+                              _showCustomAlertDialog(
                                 context,
                                 Config.appName,
                                 "Video updated",
@@ -313,18 +313,18 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
                                       builder: (context) => ViewVideoTherapistPage(userData: widget.userData),
                                     ),
                                   );
-                                },
+                                }, kPrimaryColor,
                               );
                             }
                             else {
-                              FormHelper.showSimpleAlertDialog(
+                              _showCustomAlertDialog(
                                 context,
                                 Config.appName,
                                 "Failed to update report",
                                 "OK",
                                     () {
                                   Navigator.of(context).pop();
-                                },
+                                }, kPrimaryColor,
                               );
                             }
                           }
@@ -354,4 +354,26 @@ class _updateVideoTherapistPageState extends State<UpdateVideoTherapistPage> {
       return false;
     }
   }
+
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
