@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
@@ -5,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import '../../components/side_menu.dart';
 import '../../config.dart';
@@ -42,6 +46,13 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
   void initState() {
     super.initState();
     fetchBookingDetails();
+  }
+  Future<Uint8List> loadImageBytes(String imagePath) async {
+    // Load the image bytes using rootBundle
+    final ByteData data = await rootBundle.load(imagePath);
+    // Convert the ByteData to Uint8List
+    final Uint8List bytes = data.buffer.asUint8List();
+    return bytes;
   }
 
   Future<void> fetchBookingDetails() async {
@@ -355,5 +366,138 @@ class _createReportPageState extends State<CreateReportTherapistPage> {
       },
     );
   }
+
+  // void _handleSubmitButton() async {
+  //   // Generate the PDF report
+  //   pw.Document document = _generatePDFReport();
+  //
+  //   // Save the PDF file to a temporary location on the device
+  //   final String pdfFilePath = await _savePDFLocally(document);
+  //
+  //   // Save report information to the database
+  //   //await _saveReportToDatabase(pdfFilePath);
+  // }
+  //
+  // pw.Document _generatePDFReport() {
+  //   // Create and customize the PDF document
+  //   pw.Document document = pw.Document();
+  //
+  //   // Define a function to add a page with the desired content
+  //   document.addPage(
+  //     pw.Page(
+  //       build: (pw.Context context) {
+  //         // Define styles for text
+  //         final pw.TextStyle titleStyle = pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold);
+  //         final pw.TextStyle subtitleStyle = pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold);
+  //         final pw.TextStyle bodyStyle = pw.TextStyle(fontSize: 12);
+  //
+  //
+  //
+  //         // Add the address
+  //         final pw.Widget addressText = pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //           children: [
+  //             pw.Text(
+  //               'Company Name',
+  //               style: titleStyle,
+  //             ),
+  //             pw.Text(
+  //               '123 Street, City, Country',
+  //               style: bodyStyle,
+  //             ),
+  //             pw.Text(
+  //               'Phone: 123-456-7890',
+  //               style: bodyStyle,
+  //             ),
+  //             pw.Text(
+  //               'Email: info@example.com',
+  //               style: bodyStyle,
+  //             ),
+  //           ],
+  //         );
+  //
+  //         // Add the progress report content
+  //         final pw.Widget progressReport = pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //           children: [
+  //             pw.Text(
+  //               'Progress Report',
+  //               style: subtitleStyle,
+  //             ),
+  //             pw.SizedBox(height: 10),
+  //             // Add progress report content here
+  //             // Example:
+  //             // pw.Text('Report content goes here', style: bodyStyle),
+  //           ],
+  //         );
+  //
+  //         // Return the content for the PDF page
+  //         return pw.Column(
+  //           crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //           children: [
+  //             //logoImage,
+  //             pw.SizedBox(height: 20),
+  //             addressText,
+  //             pw.SizedBox(height: 20),
+  //             progressReport,
+  //           ],
+  //         );
+  //       },
+  //     ),
+  //   );
+  //
+  //   return document;
+  // }
+  //
+  //
+  // // Function to save the PDF file to a temporary location on the device
+  // Future<String> _savePDFLocally(pw.Document document) async {
+  //   // Generate a unique file name for the PDF file
+  //   String fileName = 'progress_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+  //
+  //   // Get the temporary directory for the app
+  //   Directory tempDir = await getTemporaryDirectory();
+  //
+  //   // Create a file in the temporary directory
+  //   File file = File('${tempDir.path}/$fileName');
+  //
+  //   // Write the PDF document to the file
+  //   await file.writeAsBytes(await document.save());
+  //
+  //   // Return the file path
+  //   return file.path;
+  // }
+
+  // Function to save the report information to the database
+  // Future<void> _saveReportToDatabase(String pdfFilePath) async {
+  //   // Validate and save form data
+  //   if (_validateAndSave()) {
+  //     try {
+  //       // Save information to the database, including the PDF file path
+  //       // Example:
+  //       // await APIService.createReport(ReportModel(
+  //       //   userId: widget.userData.data!.id,
+  //       //   reportTitle: _reportTitle!,
+  //       //   reportDescription: _description!,
+  //       //   childId: widget.booking.childId,
+  //       //   bookingId: widget.booking.id!,
+  //       //   file: pdfFilePath,
+  //       // ));
+  //
+  //       // Display success message to the user
+  //       _showCustomAlertDialog(
+  //           context, "Success", "Report saved successfully", "OK", () {
+  //         // Navigate to the next screen or perform any other action
+  //         // Example:
+  //         // Navigator.push(context, MaterialPageRoute(builder: (context) => NextScreen()));
+  //       }, kPrimaryColor);
+  //     } catch (error) {
+  //       // Handle error
+  //       print("Error saving report: $error");
+  //       _showCustomAlertDialog(
+  //           context, "Error", "Failed to save report", "OK", () {}, Colors.red);
+  //     }
+  //   }
+  // }
 
 }

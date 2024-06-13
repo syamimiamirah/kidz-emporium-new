@@ -39,12 +39,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  //await LocalNotification.init();
-  //await MessageHandler.initialize();
   await LocalNotification.init(); // Initialize local notifications
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler); // Set the background message handler
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override

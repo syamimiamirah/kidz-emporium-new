@@ -357,32 +357,35 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
         isAPICallProcess = false;
       });
 
-      if (success && reminderResponse != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(Config.appName),
-              content: Text('Booking details have been updated successfully.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ViewBookingAdminPage(userData: widget.userData)
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'OK',
-                    style: TextStyle(color: kPrimaryColor),
+      if (success) {
+        if(reminderResponse != null){
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(Config.appName),
+                content: Text('Booking details have been updated successfully.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ViewBookingAdminPage(userData: widget.userData)
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'OK',
+                      style: TextStyle(color: kPrimaryColor),
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
-        );
+                ],
+              );
+            },
+          );
+        }
+
       } else {
         // Handle update failure
         // Show error message or retry option

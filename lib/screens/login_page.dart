@@ -180,7 +180,7 @@ class _loginPageState extends State<LoginPage>{
 
                         if(response){
                           _sendFCMTokenToBackend();
-                          FormHelper.showSimpleAlertDialog(
+                          _showCustomAlertDialog(
                               context,
                               Config.appName,
                               "User Logged-In Successfully",
@@ -210,18 +210,18 @@ class _loginPageState extends State<LoginPage>{
                                         ),
                                       );
                                     }
-                                },
+                                },kSecondaryColor,
 
                           );
                         }else{
-                          FormHelper.showSimpleAlertDialog(
+                          _showCustomAlertDialog(
                             context,
                             Config.appName,
                             "Invalid Email/Password!",
                             "OK",
                                 (){
                               Navigator.of(context).pop();
-                            },
+                            }, kSecondaryColor,
                           );
                         }
                       }
@@ -285,5 +285,26 @@ class _loginPageState extends State<LoginPage>{
     }else{
       return false;
     }
+  }
+
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

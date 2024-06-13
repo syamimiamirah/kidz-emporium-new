@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -32,6 +31,7 @@ import 'package:kidz_emporium/screens/parent/view_chat_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_notification_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_video_parent.dart';
 import 'package:kidz_emporium/services/local_notification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
 import '../main.dart';
 import '../models/booking_model.dart';
@@ -56,7 +56,7 @@ class HomePage extends StatefulWidget {
 
 class _homePageState extends State<HomePage>{
   //Creating static data in lists
-  List catNames = [
+  List<String> catNames = [
     "Booking",
     "Therapist",
     "Report",
@@ -65,7 +65,7 @@ class _homePageState extends State<HomePage>{
     "Child"
   ];
 
-  List<Color> catColors= [
+  List<Color> catColors = [
     kPrimaryColor,
     kSecondaryColor,
     kPrimaryColor,
@@ -82,22 +82,47 @@ class _homePageState extends State<HomePage>{
     Icon(Icons.calendar_month, color: Colors.white, size: 30),
     Icon(Icons.child_care, color: Colors.white, size: 30),
   ];
-  List bookingList = [
-    'Booking 1', 'Booking 2', 'Booking 3', 'Booking 4'
-  ];
 
   List<BookingModel> bookings = [];
   List<ChildModel> children = [];
   List<TherapistModel> therapists = [];
   List<UserModel> users = []; // Add a list to store user details
-
   int _notificationCount = MessageHandler.getNotificationCount();
 
   @override
   void initState() {
     super.initState();
+    _checkNotificationStatus();
     _loadData(widget.userData.data!.id);
     listenToNotification();
+  }
+
+  void _checkNotificationStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSeenNotification = prefs.getBool('hasSeenNotification') ?? false;
+
+    if (!hasSeenNotification) {
+      // Display notification page
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showNotificationPage();
+      });
+
+      // Set the flag
+      prefs.setBool('hasSeenNotification', true);
+    }
+  }
+
+
+  void _showNotificationPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NotificationDetailsPage(
+          userData: widget.userData,
+          payload: '{}', // You might need to modify this depending on your payload structure
+        ),
+      ),
+    );
   }
 
   void listenToNotification() {
@@ -140,8 +165,6 @@ class _homePageState extends State<HomePage>{
       _notificationCount = MessageHandler.getNotificationCount();
     });
   }
-
-
 
   Future<void> _loadData(String userId) async {
     try {
