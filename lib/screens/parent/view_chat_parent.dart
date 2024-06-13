@@ -86,7 +86,32 @@ class _FAQPageState extends State<FAQPage> {
           'Tiktok: kidzemporiumtherapy',
       image: null,
     ),
+    FAQResponse(
+      text: 'Our working hours are Monday to Friday, from 9 AM to 5 PM.',
+      image: null,
+    ),
+    FAQResponse(
+      text: 'Yes, we offer online consultations via Google Meets. Please schedule an appointment first.',
+      image: null,
+    ),
+    FAQResponse(
+      text: 'You can visit our website at https://kidzemporiumtherapy.my.canva.site/kidz-emporium-therapy for more information and online booking.',
+      image: null,
+    ),
   ];
+
+  // Define keywords related to different categories
+  Map<String, List<String>> categoryKeywords = {
+    'services': ["service", "services", "Service", "Services"],
+    'payment': ["payment", "pay", "Payment", "Pay"],
+    'pricing': ["price", "pricing", "Price", "Pricing"],
+    // Add more categories and their corresponding keywords here
+  };
+  @override
+  void initState() {
+    super.initState();
+    print('Scroll controller attached: ${_scrollController.hasClients}');
+  }
 
   @override
   void dispose() {
@@ -242,6 +267,61 @@ class _FAQPageState extends State<FAQPage> {
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
+                      SizedBox(width: 10), // Add SizedBox for spacing between buttons
+                      ElevatedButton(
+                        onPressed: () {
+                          _handleButtonPressed('Working Hours');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: kPrimaryColor,
+                          onPrimary: kPrimaryColor,
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          'Working Hours',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 10), // Add SizedBox for spacing between buttons
+                      ElevatedButton(
+                        onPressed: () {
+                          _handleButtonPressed('Online Consultation');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: kPrimaryColor,
+                          onPrimary: kPrimaryColor,
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          'Online Consultation',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 10), // Add SizedBox for spacing between buttons
+                      ElevatedButton(
+                        onPressed: () {
+                          _handleButtonPressed('Website');
+                          _launchURL('https://kidzemporiumtherapy.my.canva.site/kidz-emporium-therapy');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: kPrimaryColor,
+                          onPrimary: kPrimaryColor,
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          'Website',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -279,6 +359,62 @@ class _FAQPageState extends State<FAQPage> {
       faqMessages.add(FAQMessage(text: message, isQuestion: true));
     });
 
+
+    // Check if the message contains any of the keywords for each category
+    for (String category in categoryKeywords.keys) {
+      if (categoryKeywords[category]!.any((keyword) => message.toLowerCase().contains(keyword))) {
+        // Display information related to the selected category
+        _displayCategoryInfo(category);
+        return; // Exit the method after displaying the category info
+      }
+    }
+
+    // If the message does not match any category, proceed with regular search functionality
+    _searchRegular(message);
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 100),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _displayCategoryInfo(String category) {
+    // Display information based on the selected category
+    setState(() {
+      switch (category) {
+        case 'services':
+          faqMessages.add(FAQMessage(text: 'Our services listed below:', isQuestion: false));
+          for (FAQResponse response in _faqResponses) {
+            if (_containsCategoryKeyword(response.text!, category)) {
+              faqMessages.add(FAQMessage(text: response.text!, isQuestion: false));
+              if (response.image != null) {
+                faqMessages.add(FAQMessage(image: response.image!, isQuestion: false));
+              }
+            }
+          }
+          break;
+        case 'payment':
+          FAQResponse paymentInfo = _getFAQResponse('Booking Payment');
+          faqMessages.add(FAQMessage(text: paymentInfo.text!, isQuestion: false));
+          break;
+        case 'pricing':
+          FAQResponse pricingInfo = _getFAQResponse('Pricing List');
+          faqMessages.add(FAQMessage(text: pricingInfo.text!, isQuestion: false));
+          if (pricingInfo.image != null) {
+            faqMessages.add(FAQMessage(image: pricingInfo.image!, isQuestion: false));
+          }
+          break;
+      // Add more cases to handle other categories
+      }
+    });
+  }
+
+  bool _containsCategoryKeyword(String text, String category) {
+    List<String> keywords = categoryKeywords[category]!;
+    return keywords.any((keyword) => text.toLowerCase().contains(keyword));
+  }
+
+  void _searchRegular(String message) {
     // Analyze the message to find a response
     if (message.isNotEmpty) {
       // If the message is not empty, search for matching responses
@@ -299,12 +435,7 @@ class _FAQPageState extends State<FAQPage> {
       if (!foundResponse) {
         // If no response is found, display "I do not have information for that"
         setState(() {
-          faqMessages.add(FAQMessage(text: 'Sorry, I do not have information for that. For further information, you can contact us through these platforms:\n\n'
-              'Phone: 03 - 89122455 or 017 - 5277473 \n\n'
-              'Email: emporiumtherapy@gmail.com \n\n'
-              'Facebook: www.facebook.com/kidzemporiumtherapycenter\n\n'
-              'Instagram: www.instagram.com/kidzemporiumtherapy\n\n'
-              'Tiktok: www.tiktok.com/@kidzemporiumtherapy', isQuestion: false));
+          faqMessages.add(FAQMessage(text: 'Sorry, I do not have information for that.', isQuestion: false));
         });
       }
     } else {
@@ -313,8 +444,12 @@ class _FAQPageState extends State<FAQPage> {
         faqMessages.add(FAQMessage(text: 'Please enter a keyword to search.', isQuestion: false));
       });
     }
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 100),
+      curve: Curves.easeOut,
+    );
   }
-
 
   void _handleButtonPressed(String keyword) {
     // Simulate fetching FAQ response based on keyword
@@ -330,7 +465,7 @@ class _FAQPageState extends State<FAQPage> {
     });
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 100),
       curve: Curves.easeOut,
     );
   }
@@ -362,15 +497,30 @@ class _FAQPageState extends State<FAQPage> {
             'Tiktok: www.tiktok.com/@kidzemporiumtherapy',
         image: null,
       );
+    } else if (keyword == 'Working Hours') {
+      return FAQResponse(
+        text: 'Our working hours are Tuesday to Saturday, from 9 AM to 5 PM.',
+        image: null,
+      );
+    } else if (keyword == 'Online Consultation') {
+      return FAQResponse(
+        text: 'Yes, we offer online consultations via Google Meets. Please schedule an appointment first.',
+        image: null,
+      );
+    } else if (keyword == 'Website') {
+      return FAQResponse(
+        text: 'You can visit our website at https://kidzemporiumtherapy.my.canva.site/kidz-emporium-therapy for more information.',
+        image: null,
+      );
     } else {
       return FAQResponse(
         text: 'Sorry, I don\'t have information about that.\n\n'
-              'For further information, you can contact us through these platforms:\n\n'
-              'Phone: 03 - 89122455 or 017 - 5277473 \n\n'
-              'Email: emporiumtherapy@gmail.com \n\n'
-              'Facebook: www.facebook.com/kidzemporiumtherapycenter\n\n'
-              'Instagram: www.instagram.com/kidzemporiumtherapy\n\n'
-              'Tiktok: www.tiktok.com/@kidzemporiumtherapy',
+            'For further information, you can contact us through these platforms:\n\n'
+            'Phone: 03 - 89122455 or 017 - 5277473 \n\n'
+            'Email: emporiumtherapy@gmail.com \n\n'
+            'Facebook: www.facebook.com/kidzemporiumtherapycenter\n\n'
+            'Instagram: www.instagram.com/kidzemporiumtherapy\n\n'
+            'Tiktok: www.tiktok.com/@kidzemporiumtherapy',
         image: null,
       );
     }

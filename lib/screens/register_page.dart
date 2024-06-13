@@ -216,10 +216,6 @@ class _registerPageState extends State<RegisterPage> {
     ),
     //Role
 
-
-
-
-
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.only(top: 0),
@@ -287,7 +283,7 @@ class _registerPageState extends State<RegisterPage> {
                       });
 
                       if(response != null){
-                        FormHelper.showSimpleAlertDialog(
+                        _showCustomAlertDialog(
                           context,
                           Config.appName,
                           "Registration Successful. Please login to the account.",
@@ -298,16 +294,16 @@ class _registerPageState extends State<RegisterPage> {
                               builder: (context) => LoginPage(),
                             ),
                           );
-                          },
+                          }, kPrimaryColor,
                         );
                       }else{
-                        FormHelper.showSimpleAlertDialog(
+                        _showCustomAlertDialog(
                           context,
                           Config.appName,
                           "This Email already registered",
                           "OK",(){
                           Navigator.of(context).pop();
-                          },
+                          }, kPrimaryColor,
                         );
                       }
                     },
@@ -361,5 +357,26 @@ class _registerPageState extends State<RegisterPage> {
     }else{
       return false;
     }
+  }
+
+  void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: onPressed,
+              child: Text(
+                buttonText,
+                style: TextStyle(color: buttonTextColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

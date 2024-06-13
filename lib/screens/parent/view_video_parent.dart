@@ -104,8 +104,8 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           tabs: [
-            Tab(text: 'Local Videos'),
-            Tab(text: 'YouTube Videos'),
+            Tab(text: 'Private Videos'),
+            Tab(text: 'Public Videos'),
           ],
         ),
       ),

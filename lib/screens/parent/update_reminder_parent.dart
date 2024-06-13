@@ -380,6 +380,17 @@ class _updateReminderParentPageState extends State<UpdateReminderParentPage>{
         initialDate: initialDate,
         firstDate: firstDate ?? DateTime(2015, 8),
         lastDate: DateTime(2101),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              primaryColor: kPrimaryColor, // Set your desired primary color
+              hintColor: kPrimaryColor, // Set your desired accent color
+              colorScheme: ColorScheme.light(primary: kPrimaryColor),
+              buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+            ),
+            child: child!,
+          );
+        },
       );
 
       if(date == null) return null;
@@ -391,6 +402,17 @@ class _updateReminderParentPageState extends State<UpdateReminderParentPage>{
       final timeOfDay = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(initialDate),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              primaryColor: kPrimaryColor, // Set your desired primary color
+              hintColor: kPrimaryColor, // Set your desired accent color
+              colorScheme: ColorScheme.light(primary: kPrimaryColor),
+              buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+            ),
+            child: child!,
+          );
+        },
       );
 
       if(timeOfDay == null) return null;
