@@ -51,11 +51,11 @@ class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.userData}) : super(key: key);
 
   @override
-  _homePageState createState() =>_homePageState();
+  _homePageState createState() => _homePageState();
 }
 
-class _homePageState extends State<HomePage>{
-  //Creating static data in lists
+class _homePageState extends State<HomePage> {
+  // Creating static data in lists
   List<String> catNames = [
     "Booking",
     "Therapist",
@@ -86,15 +86,31 @@ class _homePageState extends State<HomePage>{
   List<BookingModel> bookings = [];
   List<ChildModel> children = [];
   List<TherapistModel> therapists = [];
-  List<UserModel> users = []; // Add a list to store user details
-  int _notificationCount = MessageHandler.getNotificationCount();
+  List<UserModel> users = [];
+  int _notificationCount = 0;
+  bool _hasNewNotification = false;
+  Map<String, dynamic> _lastNotificationPayload = {};
 
   @override
   void initState() {
     super.initState();
+    _loadNotificationCount();
     _checkNotificationStatus();
     _loadData(widget.userData.data!.id);
     listenToNotification();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkNotificationStatus();
+  }
+
+  Future<void> _loadNotificationCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationCount = prefs.getInt('notificationCount') ?? 0;
+    });
   }
 
   void _checkNotificationStatus() async {
@@ -102,33 +118,47 @@ class _homePageState extends State<HomePage>{
     bool hasSeenNotification = prefs.getBool('hasSeenNotification') ?? false;
 
     if (!hasSeenNotification) {
-      // Display notification page
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showNotificationPage();
+        _showNotificationPage(_lastNotificationPayload);
       });
 
-      // Set the flag
       prefs.setBool('hasSeenNotification', true);
     }
   }
 
+  void _showNotificationPage(Map<String, dynamic> payload) {
+    setState(() {
+      _hasNewNotification = true;
+      _notificationCount++;
+    });
 
-  void _showNotificationPage() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => NotificationDetailsPage(
           userData: widget.userData,
-          payload: '{}', // You might need to modify this depending on your payload structure
+          payload: json.encode(payload),
         ),
       ),
-    );
+    ).then((_) {
+      setState(() {
+        _hasNewNotification = false;
+        _notificationCount = 0;
+      });
+      _saveNotificationCount(0);
+      _saveNotificationStatus(true);
+    });
   }
 
   void listenToNotification() {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (message.data != null) {
         String payload = json.encode(message.data);
+        setState(() {
+          _lastNotificationPayload = message.data;
+          _hasNewNotification = true;
+          _notificationCount++;
+        });
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -137,14 +167,22 @@ class _homePageState extends State<HomePage>{
               payload: payload,
             ),
           ),
-        );
+        ).then((_) {
+          setState(() {
+            _hasNewNotification = false;
+            _notificationCount = 0;
+          });
+          _saveNotificationCount(0);
+        });
       }
     });
 
     LocalNotification.onClickNotification.stream.listen((event) {
       if (event != null) {
         setState(() {
-          _notificationCount = MessageHandler.getNotificationCount(); // Update local count
+          _lastNotificationPayload = json.decode(event);
+          _hasNewNotification = true;
+          _notificationCount++;
         });
         Navigator.push(
           context,
@@ -154,33 +192,41 @@ class _homePageState extends State<HomePage>{
               payload: event,
             ),
           ),
-        );
+        ).then((_) {
+          setState(() {
+            _hasNewNotification = false;
+            _notificationCount = 0;
+          });
+          _saveNotificationCount(0);
+        });
       }
     });
   }
 
-  void _resetNotificationCount() {
-    setState(() {
-      MessageHandler.resetNotificationCount();
-      _notificationCount = MessageHandler.getNotificationCount();
-    });
+  void _saveNotificationCount(int count) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('notificationCount', count);
   }
+
+  void _saveNotificationStatus(bool status) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('hasSeenNotification', status);
+  }
+
 
   Future<void> _loadData(String userId) async {
     try {
-      // Use Future.wait to wait for all API calls to complete
       await Future.wait([
         _loadBooking(userId),
         _loadChildren(userId),
         _loadTherapists(userId),
-        _loadUsers(), // Fetch user details
+        _loadUsers(),
       ]);
     } catch (error) {
       print('Error loading data: $error');
     }
   }
 
-  // Fetch user details
   Future<void> _loadUsers() async {
     try {
       List<UserModel> loadedUsers = await APIService.getAllUsers();
@@ -201,7 +247,6 @@ class _homePageState extends State<HomePage>{
           DateTime fromDate = DateTime.parse(booking.fromDate);
           return fromDate.isAfter(now) || fromDate.isAtSameMomentAs(now);
         }).toList();
-        // Sort the bookings by date
         bookings.sort((a, b) {
           DateTime dateA = DateTime.parse(a.fromDate);
           DateTime dateB = DateTime.parse(b.fromDate);
@@ -236,7 +281,7 @@ class _homePageState extends State<HomePage>{
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       drawer: NavBar(userData: widget.userData),
       appBar: AppBar(
@@ -246,16 +291,15 @@ class _homePageState extends State<HomePage>{
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil("/login", (route) => false,
-            )
+            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil("/login", (route) => false),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-          context, MaterialPageRoute(builder: (context) => FAQPage())
-        );
+              context, MaterialPageRoute(builder: (context) => FAQPage())
+          );
         },
         child: Icon(Icons.chat, color: Colors.white),
         backgroundColor: kPrimaryColor,
@@ -278,248 +322,290 @@ class _homePageState extends State<HomePage>{
                   padding: EdgeInsets.only(left: 3, bottom: 15),
                   child: Row(
                     children: <Widget>[
-                      Text("Hi, ${widget.userData.data?.name ?? 'User'}!", style: TextStyle(fontSize: 25,color: Colors.white, decoration: TextDecoration.none)),
-                    ],
-                  ),
-                )
-              ],
-            )
-          ),
-          Padding(padding: EdgeInsets.only(top: 20, left: 15, right: 15),
-          child: Column(
-            children: [
-              GridView.builder(
-                itemCount: catNames.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                childAspectRatio: 1.1,
-                ),
-                itemBuilder: (context, index){
-                  return InkWell( // Wrap the container with InkWell for clickability
-                      onTap: () async {
-                    // Handle the click event for the calendar
-                   List<TherapistModel> therapists = await APIService.getAllTherapists();
-                   List<UserModel> users = await APIService.getAllUsers();
-                    if (catNames[index] == "Booking") {
-                      // Add your code here to navigate or perform an action
-                      // when the calendar is clicked
-                      print("Booking clicked!");
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) =>  ViewBookingParentPage(userData:widget.userData)),
-                      );
-                    }
-
-                    if (catNames[index] == "Therapist") {
-                      // Add your code here to navigate or perform an action
-                      // when the calendar is clicked
-                      print("Therapist clicked!");
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ViewTherapistParentPage(userData:widget.userData, therapists: therapists, users: users,)),//CreateTherapist()),
-                      );
-                    }
-                    if (catNames[index] == "Report") {
-                      // Add your code here to navigate or perform an action
-                      // when the calendar is clicked
-                      print("Report clicked!");
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) =>  ViewReportParentPage(userData:widget.userData)),
-                      );
-                    }
-                    if (catNames[index] == "Video") {
-                      // Add your code here to navigate or perform an action
-                      // when the calendar is clicked
-                      print("Video clicked!");
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) =>  ViewVideoParentPage(userData:widget.userData)),
-                      );
-                    }
-                    if (catNames[index] == "Calendar") {
-                      // Add your code here to navigate or perform an action
-                      // when the calendar is clicked
-                      print("Calendar clicked!");
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) =>  ViewReminderParentPage(userData:widget.userData)),
-                      );
-                    }
-                    if (catNames[index] == "Child") {
-                      // Add your code here to navigate or perform an action
-                      // when the calendar is clicked
-                      print("Child clicked!");
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ViewChildParentPage(userData:widget.userData)),
-                      );
-                    }
-                  },
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 60,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          color: catColors[index],
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: catIcons[index],),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        catNames[index], style: TextStyle(fontSize: 16,color: Colors.black.withOpacity(0.6),
-                      ),
-                      ),
-                    ],
-                  ),
-                  );
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "My Booking",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ViewBookingParentPage(userData:widget.userData)),
-                      );
-                    },
-                    child: Text(
-                      "See All",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: kSecondaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              GridView.builder(
-                itemCount: bookings.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                ),
-                itemBuilder: (context, index){
-                  return InkWell(
-                    onTap: () async {
-                      try {
-                        // Retrieve the booking
-                        BookingModel booking = bookings[index];
-
-                        // Retrieve the therapist corresponding to the booking
-                        TherapistModel therapist = therapists.firstWhere(
-                              (therapist) => therapist.id == booking.therapistId,
-                          orElse: () => TherapistModel(
-                            specialization: 'Unknown',
-                            hiringDate: '',
-                            aboutMe: '',
-                            therapistId: '',
-                            managedBy: '',
-                          ),
-                        );
-
-                        // Retrieve the child corresponding to the booking
-                        ChildModel child = children.firstWhere(
-                              (child) => child.id == booking.childId,
-                          orElse: () => ChildModel(
-                            childName: 'Unknown',
-                            birthDate: '',
-                            gender: '',
-                            program: '',
-                            userId: '',
-                          ),
-                        );
-
-                        // Retrieve the user details of the therapist
-                        UserModel therapistUser = users.firstWhere(
-                              (user) => user.id == booking.therapistId,
-                          orElse: () => UserModel(
-                            id: '',
-                            name: 'Unknown',
-                            email: '',
-                            password: '',
-                            phone: '',
-                            role: 'Therapist',
-                          ),
-                        );
-
-                        // Navigate to BookingDetailsPage with retrieved data
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookingDetailsPage(
-                              userData: widget.userData,
-                              booking: booking,
-                              therapist: therapist,
-                              child: child,
-                              therapistUser: therapistUser,
-                            ),
-                          ),
-                        );
-                      } catch (error) {
-                        print('Error navigating to BookingDetailsPage: $error');
-                        // Handle error gracefully, e.g., show a snackbar or display an error message
-                      }
-                    },
-
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: kSecondaryColor.withOpacity(0.2),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      Text("Hi, ${widget.userData.data?.name ?? 'User'}!", style: TextStyle(fontSize: 25, color: Colors.white, decoration: TextDecoration.none)),
+                      SizedBox(width: 10),
+                      Stack(
                         children: [
-                          Padding(padding: EdgeInsets.all(10),
-                            child: Icon(Icons.person, size: 50),
-                            ),
-                          SizedBox(
-                            height: 10,
+                          IconButton(
+                            icon: Icon(Icons.notifications, color: Colors.white),
+                            onPressed: () => _showNotificationPage(_lastNotificationPayload),
                           ),
-                          Text(
-                            bookings[index].service,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "On ${DateFormat('dd-MM-yyyy').format(
-                          DateTime.parse(bookings[index].fromDate))}" ,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Visibility(
+                              visible: _hasNewNotification,
+                              child: Container(
+                                padding: EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.red,
+                                ),
+                                constraints: BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '$_notificationCount',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          )
+          Padding(
+            padding: EdgeInsets.only(top: 20, left: 15, right: 15),
+            child: Column(
+              children: [
+                GridView.builder(
+                  itemCount: catNames.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.1,
+                  ),
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () async {
+                        List<TherapistModel> therapists = await APIService.getAllTherapists();
+                        List<UserModel> users = await APIService.getAllUsers();
+                        if (catNames[index] == "Booking") {
+                          print("Booking clicked!");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewBookingParentPage(userData: widget.userData),
+                            ),
+                          );
+                        }
+                        if (catNames[index] == "Therapist") {
+                          print("Therapist clicked!");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewTherapistParentPage(
+                                userData: widget.userData,
+                                therapists: therapists,
+                                users: users,
+                              ),
+                            ),
+                          );
+                        }
+                        if (catNames[index] == "Report") {
+                          print("Report clicked!");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewReportParentPage(userData: widget.userData),
+                            ),
+                          );
+                        }
+                        if (catNames[index] == "Video") {
+                          print("Video clicked!");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewVideoParentPage(userData: widget.userData),
+                            ),
+                          );
+                        }
+                        if (catNames[index] == "Calendar") {
+                          print("Calendar clicked!");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewReminderParentPage(userData: widget.userData),
+                            ),
+                          );
+                        }
+                        if (catNames[index] == "Child") {
+                          print("Child clicked!");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewChildParentPage(userData: widget.userData),
+                            ),
+                          );
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: catColors[index],
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: catIcons[index],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            catNames[index],
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black.withOpacity(0.6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "My Booking",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewBookingParentPage(userData: widget.userData),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "See All",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: kSecondaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                GridView.builder(
+                  itemCount: bookings.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                  ),
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () async {
+                        try {
+                          BookingModel booking = bookings[index];
+                          TherapistModel therapist = therapists.firstWhere(
+                                (therapist) => therapist.id == booking.therapistId,
+                            orElse: () => TherapistModel(
+                              specialization: 'Unknown',
+                              hiringDate: '',
+                              aboutMe: '',
+                              therapistId: '',
+                              managedBy: '',
+                            ),
+                          );
+                          ChildModel child = children.firstWhere(
+                                (child) => child.id == booking.childId,
+                            orElse: () => ChildModel(
+                              childName: 'Unknown',
+                              birthDate: '',
+                              gender: '',
+                              program: '',
+                              userId: '',
+                            ),
+                          );
+                          UserModel therapistUser = users.firstWhere(
+                                (user) => user.id == booking.therapistId,
+                            orElse: () => UserModel(
+                              id: '',
+                              name: 'Unknown',
+                              email: '',
+                              password: '',
+                              phone: '',
+                              role: 'Therapist',
+                            ),
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BookingDetailsPage(
+                                userData: widget.userData,
+                                booking: booking,
+                                therapist: therapist,
+                                child: child,
+                                therapistUser: therapistUser,
+                              ),
+                            ),
+                          );
+                        } catch (error) {
+                          print('Error navigating to BookingDetailsPage: $error');
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: kSecondaryColor.withOpacity(0.2),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Icon(Icons.person, size: 50),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              bookings[index].service,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "On ${DateFormat('dd-MM-yyyy').format(DateTime.parse(bookings[index].fromDate))}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
