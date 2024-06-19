@@ -1,13 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:kidz_emporium/Screens/parent/update_booking_parent.dart';
 import 'package:kidz_emporium/Screens/parent/view_booking_parent.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../contants.dart';
+import '../../services/message_handler.dart';
 
 class NotificationDetailsPage extends StatefulWidget {
   final String payload;
@@ -21,12 +21,13 @@ class NotificationDetailsPage extends StatefulWidget {
 
 class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
   String _title = '';
   String _body = '';
   String _bookingId = '';
   String _notificationType = '';
-  bool _notificationHandled = false; // Flag to track whether the notification has been handled
+  bool _notificationHandled = false;
+  late final StreamSubscription<RemoteMessage> _onMessageSubscription;
+  late final StreamSubscription<RemoteMessage> _onMessageOpenedAppSubscription;
 
   @override
   void initState() {
@@ -34,13 +35,18 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
     _parsePayload(widget.payload);
 
     _firebaseMessaging.getInitialMessage().then((message) {
-      if (message != null) {
+      if (message != null && mounted) {
         _handleMessage(message);
       }
     });
 
+    _onMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        _handleMessage(message);
+      }
+    });
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (mounted) {
         _handleMessage(message);
       }
@@ -50,23 +56,18 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
   Future<void> _resetNotificationFlag() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notificationHandled', false);
+    MessageHandler.resetNotificationHandledFlag();
   }
 
   void _parsePayload(String payload) {
     try {
-      print(payload);
       final data = Map<String, dynamic>.from(json.decode(payload));
       setState(() {
         _title = data['title'] ?? 'No Title';
         _body = data['body'] ?? 'No Body';
-        _bookingId = data['data']?['bookingId'] ?? 'No Booking ID';
-
-        // Determine the notification type based on the presence of the bookingId
-        if (_bookingId != 'No Booking ID'|| _bookingId != 'No Payload') {
-          _notificationType = 'booking';
-        } else {
-          _notificationType = 'general'; // If bookingId is absent, treat it as a general notification
-        }
+        _bookingId = data['bookingId'] ?? 'No Booking ID';
+        _notificationType = data['type'] ?? 'general';
+        _notificationHandled = true;
       });
     } catch (e) {
       print('Error parsing payload: $e');
@@ -74,123 +75,146 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
   }
 
   void _handleMessage(RemoteMessage message) {
-    if (!_notificationHandled) {
-      final notification = message.notification;
-      final data = message.data;
+    final notification = message.notification;
+    final data = message.data;
 
-      setState(() {
-        _title = notification?.title ?? 'No Title';
-        _body = notification?.body ?? 'No Body';
-        _bookingId = data['bookingId'] ?? 'No Booking ID';
-        _notificationType = data['type'] ?? 'general'; // Determine the type of notification
-      });
-
-      // Set the flag to indicate that the notification has been handled
+    setState(() {
+      _title = notification?.title ?? 'No Title';
+      _body = notification?.body ?? 'No Body';
+      _bookingId = data['bookingId'] ?? 'No Booking ID';
+      _notificationType = data['type'] ?? 'general';
       _notificationHandled = true;
-    }
+    });
   }
 
   @override
   void dispose() {
     _resetNotificationFlag();
+    MessageHandler.resetNotificationCount();
+    _onMessageSubscription.cancel();
+    _onMessageOpenedAppSubscription.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: kPrimaryColor,
-        elevation: 0,
-        title: Text(
-          'Notification Details',
+    return WillPopScope(
+      onWillPop: () async {
+        // Reset notification count and flag when the user navigates back
+        await _resetNotificationFlag();
+        MessageHandler.resetNotificationCount();
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: kPrimaryColor,
+          elevation: 0,
+          title: Text(
+            'Notification Details',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: MessageHandler.getNotificationCount() > 0 ? _buildNotificationDetails() : _buildNoNotificationMessage(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _notificationType == 'booking'
+              ? 'Below is the message from the Center regarding your booking session'
+              : 'You have received a notification',
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.black,
           ),
         ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _notificationType == 'reminder'
-                  ? 'You have a reminder notification'
-                  : 'Below is the message from the Center regarding your booking session',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+        SizedBox(height: 20),
+        _buildInfoItem('Title:', _title),
+        SizedBox(height: 20),
+        _buildInfoItem('Description:', _body),
+        if (_notificationType == 'booking') ...[
+          SizedBox(height: 40),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UpdateBookingParentPage(
+                      userData: widget.userData,
+                      bookingId: _bookingId,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: kPrimaryColor,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Reschedule',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            SizedBox(height: 20),
-            _buildInfoItem('Title:', _title),
-            SizedBox(height: 20),
-            _buildInfoItem('Description:', _body),
-            if (_notificationType == 'booking') ...[
-              SizedBox(height: 40),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    print('Booking ID: $_bookingId');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UpdateBookingParentPage(
-                          userData: widget.userData,
-                          bookingId: _bookingId,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: kPrimaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+          ),
+        ] else if (_notificationType == 'general') ...[
+          SizedBox(height: 40),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewBookingParentPage(userData: widget.userData),
                   ),
-                  child: Text(
-                    'Reschedule',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: kPrimaryColor,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            ] else if (_notificationType == 'general') ...[
-              SizedBox(height: 40),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle action for reminder notification
-                    print('Reminder for event');
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) =>  ViewBookingParentPage(userData:widget.userData)),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: kPrimaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'Acknowledge',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              child: Text(
+                'Acknowledge',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildNoNotificationMessage() {
+    return Center(
+      child: Text(
+        'No new notifications',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.black,
         ),
       ),
     );

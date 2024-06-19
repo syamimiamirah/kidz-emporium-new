@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedService{
   static Future<bool> isLoggedIn() async{
@@ -54,4 +55,5 @@ class SharedService{
       return null;
     }
   }
+
 }
