@@ -3,27 +3,26 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:kidz_emporium/Screens/admin/view_therapist_admin.dart';
-import 'package:kidz_emporium/Screens/admin/view_youtube_admin.dart';
-import 'package:kidz_emporium/Screens/login_page.dart';
-import 'package:kidz_emporium/Screens/parent/create_booking_parent.dart';
-import 'package:kidz_emporium/Screens/parent/create_child_parent.dart';
-import 'package:kidz_emporium/Screens/parent/details_booking_parent.dart';
-import 'package:kidz_emporium/Screens/parent/view_booking_parent.dart';
-import 'package:kidz_emporium/Screens/parent/view_child_parent.dart';
-import 'package:kidz_emporium/Screens/parent/view_reminder_parent.dart';
-import 'package:kidz_emporium/Screens/parent/view_report_parent.dart';
-import 'package:kidz_emporium/Screens/parent/view_therapist_parent.dart';
-import 'package:kidz_emporium/Screens/therapist/create_video_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/details_booking_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/view_booking_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/view_child_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/view_task_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/view_therapist.dart';
-import 'package:kidz_emporium/Screens/therapist/view_video_therapist.dart';
+import 'package:kidz_emporium/screens/admin/view_therapist_admin.dart';
+import 'package:kidz_emporium/screens/login_page.dart';
+import 'package:kidz_emporium/screens/parent/create_booking_parent.dart';
+import 'package:kidz_emporium/screens/parent/create_child_parent.dart';
+import 'package:kidz_emporium/screens/parent/details_booking_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_booking_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_child_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_reminder_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_report_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_therapist_parent.dart';
+import 'package:kidz_emporium/screens/therapist/create_video_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/details_booking_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_booking_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_child_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_report_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_task_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_video_therapist.dart';
 import 'package:kidz_emporium/contants.dart';
-import 'package:kidz_emporium/Screens/login_page.dart';
+import 'package:kidz_emporium/screens/login_page.dart';
 import 'package:kidz_emporium/components/side_menu.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:kidz_emporium/models/user_model.dart';
@@ -44,7 +43,10 @@ import 'admin/create_task_admin.dart';
 import 'admin/create_therapist_admin.dart';
 import 'admin/details_booking_admin.dart';
 import 'admin/view_booking_admin.dart';
+import 'admin/view_child_admin.dart';
+import 'admin/view_report_admin.dart';
 import 'admin/view_task_admin.dart';
+import 'admin/view_video_admin.dart';
 
 class HomePage extends StatefulWidget {
   final LoginResponseModel userData;
@@ -786,7 +788,7 @@ class _adminHomePageState extends State<AdminHomePage>{
                   ),
                   itemBuilder: (context, index){
                     return InkWell( // Wrap the container with InkWell for clickability
-                      onTap: () {
+                      onTap: () async {
                         // Handle the click event for the calendar
                         if (catNames[index] == "Booking") {
                           // Add your code here to navigate or perform an action
@@ -808,16 +810,16 @@ class _adminHomePageState extends State<AdminHomePage>{
                           // Add your code here to navigate or perform an action
                           // when the calendar is clicked
                           print("Report clicked!");
-                          /*Navigator.push(context, MaterialPageRoute(
-                              builder: (context) =>  ViewReminderParentPage(userData:widget.userData)),
-                          );*/
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) =>  ViewReportAdminPage(userData:widget.userData)),
+                          );
                         }
                         if (catNames[index] == "Video") {
                           // Add your code here to navigate or perform an action
                           // when the calendar is clicked
                           print("Video clicked!");
                           Navigator.push(context, MaterialPageRoute(
-                              builder: (context) =>  ViewYoutubeAdmin(userData:widget.userData)),
+                              builder: (context) =>  ViewVideoAdminPage(userData:widget.userData)),
                           );
                         }
                         if (catNames[index] == "Task") {
@@ -828,13 +830,14 @@ class _adminHomePageState extends State<AdminHomePage>{
                               builder: (context) =>  ViewTaskAdminPage(userData:widget.userData)),
                           );
                         }
+                        List<ChildModel> children = await APIService.getAllChildren();
                         if (catNames[index] == "Child") {
                           // Add your code here to navigate or perform an action
                           // when the calendar is clicked
                           print("Child clicked!");
-                          /*Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => ViewChildParentPage(userData:widget.userData)),
-                          );*/
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => ViewChildAdminPage(userData:widget.userData, children: children)),
+                          );
                         }
                       },
                       child: Column(

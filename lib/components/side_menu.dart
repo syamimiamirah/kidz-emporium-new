@@ -8,13 +8,11 @@ import 'package:kidz_emporium/Screens/therapist/view_booking_therapist.dart';
 import 'package:kidz_emporium/Screens/therapist/view_video_therapist.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/Screens/login_page.dart';
-import 'package:kidz_emporium/Screens/home.dart';
+import 'package:kidz_emporium/screens/home.dart';
 import 'package:kidz_emporium/screens/parent/view_video_parent.dart';
-
 import '../Screens/admin/create_therapist_admin.dart';
 import '../Screens/admin/view_task_admin.dart';
 import '../Screens/admin/view_therapist_admin.dart';
-import '../Screens/admin/view_youtube_admin.dart';
 import '../Screens/parent/create_booking_parent.dart';
 import '../Screens/parent/view_child_parent.dart';
 import '../Screens/parent/view_reminder_parent.dart';
@@ -28,6 +26,9 @@ import '../models/child_model.dart';
 import '../models/login_response_model.dart';
 import '../models/therapist_model.dart';
 import '../models/user_model.dart';
+import '../screens/admin/view_child_admin.dart';
+import '../screens/admin/view_report_admin.dart';
+import '../screens/admin/view_video_admin.dart';
 import '../services/api_service.dart';
 
 class NavBar extends StatefulWidget{
@@ -164,6 +165,41 @@ class AdminNavBar extends StatefulWidget{
 }
 
 class _adminNavBarState extends State<AdminNavBar> {
+
+  List<ChildModel> children = [];
+  List<TherapistModel> therapists = [];
+  List<UserModel> users = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadChildren();
+    loadUsers();// Load children data when the page initializes
+  }
+  Future<void> loadUsers() async{
+    try {
+      List<UserModel> fetchedUsers = await APIService.getAllUsers();
+      setState(() {
+        users = fetchedUsers;
+      });
+    } catch (error) {
+      // Handle error
+      print("Error fetching therapists: $error");
+    }
+  }
+  // Function to fetch children data
+  Future<void> loadChildren() async {
+    try {
+      List<ChildModel> fetchedChildren = await APIService.getAllChildren();
+      setState(() {
+        children = fetchedChildren;
+      });
+    } catch (error) {
+      // Handle error
+      print("Error fetching children: $error");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -196,21 +232,20 @@ class _adminNavBarState extends State<AdminNavBar> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.payment),
-              title: Text("Payment"),
-              onTap: () => null,
-            ),
-            ListTile(
               leading: Icon(Icons.event_note),
               title: Text("Report"),
-              onTap: () => null,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => ViewReportAdminPage(userData:widget.userData)),//CreateTherapist()),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.video_library),
               title: Text("Video"),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => ViewYoutubeAdmin(userData:widget.userData)),//CreateTherapist()),
+                    builder: (context) => ViewVideoAdminPage(userData:widget.userData)),//CreateTherapist()),
                 );
               },
             ),
@@ -228,7 +263,11 @@ class _adminNavBarState extends State<AdminNavBar> {
             ListTile(
               leading: Icon(Icons.child_care),
               title: Text("Children"),
-              onTap: () => null,
+              onTap: () =>
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) =>
+                          ViewChildAdminPage(userData: widget.userData, children: children)),
+                  ),
             ),
             ListTile(
               leading: Icon(Icons.calendar_month),

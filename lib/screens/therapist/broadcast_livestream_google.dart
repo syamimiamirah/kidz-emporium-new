@@ -82,7 +82,7 @@ class _BroadcastLivestreamPageState extends State<BroadcastLivestreamPage> {
                   // Launch the Google Meet URL in the default web browser
                   _launchMeetingUrl(meetingUrl);
                 },
-                child: Text('Start Livestream',
+                child: Text('Start Meeting',
                   style: TextStyle(fontSize: 16),
                 ),
               style: ElevatedButton.styleFrom(

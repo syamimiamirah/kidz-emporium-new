@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kidz_emporium/Screens/parent/view_booking_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_booking_parent.dart';
 import 'package:kidz_emporium/config.dart';
 import 'package:flutter/services.dart'; // Import this package
 import 'package:kidz_emporium/services/api_service.dart';
@@ -12,7 +12,7 @@ import '../../models/payment_model.dart';
 import '../../models/reminder_model.dart';
 import '../../utils.dart';
 
-class PaymentPage extends StatefulWidget {
+class CreatePaymentPage extends StatefulWidget {
   final LoginResponseModel userData;
   final String? service;
   final String? selectedTherapist;
@@ -20,7 +20,7 @@ class PaymentPage extends StatefulWidget {
   final DateTime? fromDate;
   final DateTime? toDate;
 
-  const PaymentPage({Key? key,
+  const CreatePaymentPage({Key? key,
     required this.userData,
     required this.selectedTherapist,
     required this.selectedChild,
@@ -28,10 +28,10 @@ class PaymentPage extends StatefulWidget {
     required this.toDate, required this.service,}) : super(key: key);
 
   @override
-  _PaymentPageState createState() => _PaymentPageState();
+  _CreatePaymentPageState createState() => _CreatePaymentPageState();
 }
 
-class _PaymentPageState extends State<PaymentPage> {
+class _CreatePaymentPageState extends State<CreatePaymentPage> {
   int? paymentAmount;
   String? paymentId;
   late String userId; // Fixed payment amount in Malaysian Ringgit
@@ -359,7 +359,7 @@ class _PaymentPageState extends State<PaymentPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text(Config.appName),
-          content: Text('Your payment was successful.'),
+          content: Text('Your payment is successful.'),
           actions: <Widget>[
             TextButton(
               onPressed: () {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:kidz_emporium/Screens/parent/view_reminder_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_reminder_parent.dart';
 /*import 'package:jwt_decoder/jwt_decoder.dart';*/
 import 'package:kidz_emporium/models/reminder_model.dart';
 import 'package:kidz_emporium/services/api_service.dart';

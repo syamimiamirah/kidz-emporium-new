@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kidz_emporium/Screens/parent/update_booking_parent.dart';
+import 'package:kidz_emporium/screens/parent/update_booking_parent.dart';
 import 'package:kidz_emporium/models/booking_model.dart';
 import 'package:kidz_emporium/models/child_model.dart';
 import 'package:kidz_emporium/models/livestream_model.dart';

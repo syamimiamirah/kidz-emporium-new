@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kidz_emporium/Screens/parent/create_reminder_parent.dart';
-import 'package:kidz_emporium/Screens/parent/update_reminder_parent.dart';
+import 'package:kidz_emporium/screens/parent/create_reminder_parent.dart';
+import 'package:kidz_emporium/screens/parent/update_reminder_parent.dart';
 import 'package:kidz_emporium/models/reminder_model.dart';
 import 'package:kidz_emporium/services/api_service.dart';
 import 'package:table_calendar/table_calendar.dart';

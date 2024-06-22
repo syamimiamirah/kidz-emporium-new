@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:kidz_emporium/Screens/admin/view_task_admin.dart';
-import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
+import 'package:kidz_emporium/screens/admin/view_task_admin.dart';
+import 'package:kidz_emporium/screens/therapist/view_report_therapist.dart';
 import 'package:kidz_emporium/components/side_menu.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';

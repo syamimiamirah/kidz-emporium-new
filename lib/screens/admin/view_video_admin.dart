@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:kidz_emporium/screens/admin/watch_video_admin.dart';
+import 'package:kidz_emporium/screens/admin/watch_youtube_admin.dart';
 import 'package:kidz_emporium/screens/parent/watch_video_parent.dart';
 import 'package:kidz_emporium/screens/parent/watch_youtube_parent.dart';
 import 'package:kidz_emporium/screens/therapist/watch_video_therapist.dart';
@@ -16,16 +18,16 @@ import '../../config.dart';
 import '../../contants.dart';
 import '../../models/child_model.dart';
 
-class ViewVideoParentPage extends StatefulWidget {
+class ViewVideoAdminPage extends StatefulWidget {
   final LoginResponseModel userData;
 
-  const ViewVideoParentPage({Key? key, required this.userData}) : super(key: key);
+  const ViewVideoAdminPage({Key? key, required this.userData}) : super(key: key);
 
   @override
-  _ViewVideoParentPageState createState() => _ViewVideoParentPageState();
+  _ViewVideoAdminPageState createState() => _ViewVideoAdminPageState();
 }
 
-class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTickerProviderStateMixin {
+class _ViewVideoAdminPageState extends State<ViewVideoAdminPage> with SingleTickerProviderStateMixin {
   List<VideoModel> videos = [];
   late Future<List<YoutubeModel>> youtubeVideos;
   TextEditingController searchController = TextEditingController();
@@ -147,15 +149,15 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
                   child: ListTile(
                     title: Text(videos[index].videoTitle, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                      videos[index].videoDescription,
-                      maxLines: 4, // Limit to 3 lines
-                      overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14.0,)),  // Display ellipsis if overflow
+                        videos[index].videoDescription,
+                        maxLines: 4, // Limit to 3 lines
+                        overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14.0,)),  // Display ellipsis if overflow
                     leading: videos[index].thumbnailPath != null ? Image.network(videos[index].thumbnailPath!) : SizedBox.shrink(),
                     onTap: () {
                       Navigator.push(
                         context, MaterialPageRoute(
                         builder: (context) =>
-                            WatchVideoParentPage(
+                            WatchVideoAdminPage(
                                 userData: widget.userData,
                                 video: videos[index]),
                       ),
@@ -279,7 +281,7 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VideoPlayerParentPage(
+                              builder: (context) => VideoPlayerAdminPage(
                                 videoId: video.videoId ?? '',
                                 title: video.title,
                                 description: video.description,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kidz_emporium/Screens/admin/view_booking_admin.dart';
+import 'package:kidz_emporium/screens/admin/view_booking_admin.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import '../../config.dart';
@@ -352,13 +352,13 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
 
 
       bool success = await APIService.updateBooking(widget.bookingId, updatedBooking);
-      final reminderResponse = await APIService.createReminder(reminderModel);
+      //final reminderResponse = await APIService.createReminder(reminderModel);
       setState(() {
         isAPICallProcess = false;
       });
 
       if (success) {
-        if(reminderResponse != null){
+        await APIService.createReminder(reminderModel);
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -385,8 +385,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
             },
           );
         }
-
-      } else {
+         else {
         // Handle update failure
         // Show error message or retry option
       }
