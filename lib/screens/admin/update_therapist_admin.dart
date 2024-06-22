@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:kidz_emporium/Screens/admin/view_therapist_admin.dart';
+import 'package:kidz_emporium/screens/admin/view_therapist_admin.dart';
 import 'package:kidz_emporium/components/side_menu.dart';
 import 'package:kidz_emporium/contants.dart';
-import 'package:kidz_emporium/Screens/login_page.dart';
+import 'package:kidz_emporium/screens/login_page.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 
@@ -145,12 +145,13 @@ class _updateTherapistAdminPageState extends State<UpdateTherapistAdminPage>{
                             value: therapistId,
                             isExpanded: true,
                             icon: Icon(Icons.arrow_drop_down, color: kSecondaryColor),
-                            onChanged: (newValue) {
-                              setState(() {
-                                therapistId = newValue!;
-                                //therapistName = users.firstWhere((user) => user.id == therapistName).name;
-                              });
-                            },
+                            onChanged: null,
+                            // onChanged: (newValue) {
+                            //   setState(() {
+                            //     therapistId = newValue!;
+                            //     //therapistName = users.firstWhere((user) => user.id == therapistName).name;
+                            //   });
+                            // },
                             items: users.map((UserModel user) {
                               return DropdownMenuItem<String>(
                                 value: user.id,
@@ -164,7 +165,6 @@ class _updateTherapistAdminPageState extends State<UpdateTherapistAdminPage>{
                     ],
                   ),
                 ),
-
               ),
             ),
             Center(
@@ -260,6 +260,19 @@ class _updateTherapistAdminPageState extends State<UpdateTherapistAdminPage>{
                                   initialDate: hiringDate,
                                   firstDate: DateTime(1900),
                                   lastDate: DateTime.now(),
+                                  builder: (BuildContext context, Widget? child) {
+                                    return Theme(
+                                      data: ThemeData(
+                                        colorScheme: ColorScheme.light(
+                                          primary: kSecondaryColor, // Set your desired color here
+                                        ),
+                                        buttonTheme: ButtonThemeData(
+                                          textTheme: ButtonTextTheme.primary,
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
                                 ).then((selectedDate){
                                   if(selectedDate != null && selectedDate != hiringDate){
                                     setState(() {

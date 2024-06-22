@@ -6,7 +6,7 @@ import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:kidz_emporium/Screens/home.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:kidz_emporium/Screens/login_page.dart';
+import 'package:kidz_emporium/screens/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:kidz_emporium/models/register_request_model.dart';
 import 'package:kidz_emporium/services/api_service.dart';

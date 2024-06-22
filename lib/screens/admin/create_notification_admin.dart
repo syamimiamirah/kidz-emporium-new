@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:kidz_emporium/Screens/admin/view_booking_admin.dart';
+import 'package:kidz_emporium/screens/admin/view_booking_admin.dart';
 import 'package:kidz_emporium/services/api_service.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 

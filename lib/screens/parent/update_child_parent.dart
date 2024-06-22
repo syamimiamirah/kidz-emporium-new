@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:kidz_emporium/Screens/parent/view_child_parent.dart';
-import 'package:kidz_emporium/Screens/parent/view_reminder_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_child_parent.dart';
+import 'package:kidz_emporium/screens/parent/view_reminder_parent.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/child_model.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';

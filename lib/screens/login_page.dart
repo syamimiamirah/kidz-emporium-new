@@ -1,9 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:kidz_emporium/Screens/home.dart';
+import 'package:kidz_emporium/screens/home.dart';
 import 'package:kidz_emporium/contants.dart';
-import 'package:kidz_emporium/Screens/register_page.dart';
+import 'package:kidz_emporium/screens/register_page.dart';
 import 'package:kidz_emporium/models/login_request_model.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:kidz_emporium/models/register_response_model.dart';

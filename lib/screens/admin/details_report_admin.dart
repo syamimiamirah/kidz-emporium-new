@@ -16,14 +16,14 @@ import '../../models/user_model.dart';
 import '../../services/api_service.dart';
 import 'dart:io';
 
-class ReportDetailsParentPage extends StatefulWidget {
+class ReportDetailsAdminPage extends StatefulWidget {
   final LoginResponseModel userData;
   final BookingModel booking;
   final TherapistModel therapist;
   final UserModel therapistUser;
   final ChildModel child;
 
-  const ReportDetailsParentPage({
+  const ReportDetailsAdminPage({
     Key? key,
     required this.userData,
     required this.booking,
@@ -33,10 +33,10 @@ class ReportDetailsParentPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ReportDetailsParentPageState createState() => _ReportDetailsParentPageState();
+  _ReportDetailsAdminPageState createState() => _ReportDetailsAdminPageState();
 }
 
-class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
+class _ReportDetailsAdminPageState extends State<ReportDetailsAdminPage> {
   bool hasReport = false;
   bool _isLoading = true;
   late String reportTitle = '';

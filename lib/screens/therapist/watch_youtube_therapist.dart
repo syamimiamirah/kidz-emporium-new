@@ -3,18 +3,18 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../contants.dart';
 
-class VideoPlayerAdminPage extends StatefulWidget {
+class VideoPlayerTherapistPage extends StatefulWidget {
   final String videoId;
   final String title;
   final String description;
 
-  const VideoPlayerAdminPage({Key? key, required this.videoId, required this.title, required this.description}) : super(key: key);
+  const VideoPlayerTherapistPage({Key? key, required this.videoId, required this.title, required this.description}) : super(key: key);
 
   @override
-  _VideoPlayerAdminPageState createState() => _VideoPlayerAdminPageState();
+  _VideoPlayerTherapistPageState createState() => _VideoPlayerTherapistPageState();
 }
 
-class _VideoPlayerAdminPageState extends State<VideoPlayerAdminPage> {
+class _VideoPlayerTherapistPageState extends State<VideoPlayerTherapistPage> {
   late YoutubePlayerController _controller;
 
   @override
@@ -35,7 +35,7 @@ class _VideoPlayerAdminPageState extends State<VideoPlayerAdminPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Video Player'),
-        backgroundColor: kSecondaryColor,
+        backgroundColor: kPrimaryColor,
         centerTitle: true,
       ),
       body: Column(

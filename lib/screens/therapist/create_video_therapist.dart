@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kidz_emporium/Screens/therapist/view_video_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_video_therapist.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/services/api_service.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kidz_emporium/Screens/admin/create_task_admin.dart';
-import 'package:kidz_emporium/Screens/admin/details_task_admin.dart';
+import 'package:kidz_emporium/screens/admin/create_task_admin.dart';
+import 'package:kidz_emporium/screens/admin/details_task_admin.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 import '../../components/side_menu.dart';

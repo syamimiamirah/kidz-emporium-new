@@ -2,7 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kidz_emporium/Screens/therapist/view_report_therapist.dart';
+import 'package:kidz_emporium/screens/therapist/view_report_therapist.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
