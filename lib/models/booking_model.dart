@@ -13,7 +13,7 @@ class BookingModel {
     this.userId,
     this.id,
     required this.service,
-    required this.therapistId,
+    this.therapistId,
     required this.childId,
     required this.fromDate,
     required this.toDate,

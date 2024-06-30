@@ -54,6 +54,7 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
       });
     } catch (error) {
       print('Error loading videos: $error');
+      showAlertDialog(context, "Error loading videos");
     }
   }
 

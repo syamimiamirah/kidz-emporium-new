@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:kidz_emporium/contants.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 import '../../components/side_menu.dart';
+import '../../config.dart';
 import '../../models/booking_model.dart';
 import '../../models/child_model.dart';
 import '../../models/login_response_model.dart';
@@ -66,6 +67,7 @@ class _ViewBookingListPageState extends State<ViewBookingParentPage> {
       });
     } catch (error) {
       print('Error loading bookings: $error');
+      showAlertDialog(context, 'Failed to load bookings');
     }
   }
 
@@ -284,6 +286,26 @@ class _ViewBookingListPageState extends State<ViewBookingParentPage> {
         }
         ),
       ],
+    );
+  }
+
+  void showAlertDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(Config.appName),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK', style: TextStyle(color: kSecondaryColor),),
+            ),
+          ],
+        );
+      },
     );
   }
 }

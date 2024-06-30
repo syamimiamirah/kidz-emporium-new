@@ -52,26 +52,35 @@ class _createTherapistAdminPageState extends State<CreateTherapistAdminPage>{
   Future<void> fetchTherapists() async {
     try {
       List<UserModel> fetchedUsers = await APIService.getAllUsers();
-
       print('Fetched users JSON response: $fetchedUsers');
 
-      // Filter the fetched users to get only therapists
-      List<UserModel> fetchedTherapists = fetchedUsers.where((user) =>
-      user.role == 'Therapist').toList();
+      // Filter fetched users to get only therapists
+      List<UserModel> fetchedTherapists = fetchedUsers
+          .where((user) => user.role == 'Therapist')
+          .toList();
       print('Filtered therapists: $fetchedTherapists');
 
-      // Print the id field of each user to debug
-      fetchedTherapists.forEach((user) {
-        print('User ID: ${user.id}');
-      });
+      // Fetch therapists from database
+      List<TherapistModel> therapistFromDatabase =
+      await APIService.getAllTherapists();
+      print('Therapists from database: $therapistFromDatabase');
+
+      // Find therapists that are not in the therapistFromDatabase
+      List<UserModel> newTherapists = fetchedTherapists.where((therapist) =>
+      !therapistFromDatabase
+          .any((localTherapist) => localTherapist.therapistId == therapist.id))
+          .toList();
+      print('New therapists to add: $newTherapists');
 
       setState(() {
-        users = fetchedTherapists;
+        users = newTherapists;
       });
-    }catch (error) {
+
+    } catch (error) {
       print('Error fetching therapists: $error');
     }
   }
+
 
   @override
   Widget build(BuildContext context){

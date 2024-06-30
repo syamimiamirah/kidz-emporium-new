@@ -282,7 +282,7 @@ class _registerPageState extends State<RegisterPage> {
                         isAPICallProcess = false;//API
                       });
 
-                      if(response != null){
+                      if(response == true ){
                         _showCustomAlertDialog(
                           context,
                           Config.appName,

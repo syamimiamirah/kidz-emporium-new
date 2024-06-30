@@ -25,7 +25,7 @@ class _BroadcastLivestreamPageState extends State<BroadcastLivestreamPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Broadcast Livestream'),
+        title: Text('Broadcast Virtual Meeting'),
         centerTitle: true,
         backgroundColor: kPrimaryColor,
       ),
@@ -36,7 +36,7 @@ class _BroadcastLivestreamPageState extends State<BroadcastLivestreamPage> {
           children: [
             SizedBox(height: 10),
             Text(
-              'To start the livestream, please insert the meeting URL.',
+              'To start the virtual meeting, please insert the meeting URL.',
               style: TextStyle(
                 fontSize: 17,
                 color: Colors.black,

@@ -552,13 +552,33 @@ class _createTaskAdminPageState extends State<CreateTaskAdminPage>{
   bool validateAndSave() {
     print("Validate and Save method is called");
     final form = globalFormKey.currentState;
-    if (form != null && form.validate()) {
-      print("Save method is called");
+    if (form!.validate()) {
       form.save();
+
+      if (selectedTherapists.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(Config.appName),
+              content: Text("Please select at least one therapist."),
+              actions: [
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      }
+
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
   void _showCustomAlertDialog(BuildContext context, String title, String message, String buttonText, VoidCallback onPressed, Color buttonTextColor) {
     showDialog(

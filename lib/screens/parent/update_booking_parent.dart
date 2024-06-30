@@ -419,12 +419,24 @@ class _updateBookingParentPageState extends State<UpdateBookingParentPage> {
         required bool pickDate,
         DateTime? firstDate,
       }) async{
+
+    while (initialDate.weekday == DateTime.sunday || initialDate.weekday == DateTime.monday) {
+      initialDate = initialDate.add(Duration(days: 1));
+    }
+
     if (pickDate){
       final date = await showDatePicker(
         context: context,
         initialDate: initialDate,
         firstDate: DateTime.now(),
         lastDate: DateTime(2101),
+        selectableDayPredicate: (DateTime day) {
+          // Disable Sunday and Monday
+          if (day.weekday == DateTime.sunday || day.weekday == DateTime.monday) {
+            return false;
+          }
+          return true;
+        },
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.light().copyWith(
