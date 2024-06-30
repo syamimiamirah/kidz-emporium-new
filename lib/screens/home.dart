@@ -869,7 +869,7 @@ class _adminHomePageState extends State<AdminHomePage>{
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "My Booking",
+                      "All Booking",
                       style: TextStyle(
                         fontSize: 23,
                       ),

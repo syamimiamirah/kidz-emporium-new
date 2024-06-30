@@ -187,20 +187,28 @@ class APIService{
     };
 
     var url = Uri.http(Config.apiURL, Config.createReminderAPI);
+    print('Request Headers: $requestHeaders');
+    print('Request Body: ${jsonEncode(model.toJson())}');
+    try {
+      var response = await client.post(
+        url,
+        headers: requestHeaders,
+        body: jsonEncode(model.toJson()),
+      );
 
-    var response = await client.post(
-      url,
-      headers: requestHeaders,
-      body: jsonEncode(model.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      return ReminderModel.fromJson(responseData);
-    } else {
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        return ReminderModel.fromJson(responseData);
+      } else {
+        print('Failed to create reminder: ${response.statusCode}');
+        throw Exception('Failed to create reminder');
+      }
+    } catch (error) {
+      print('Error creating reminder: $error');
       throw Exception('Failed to create reminder');
     }
   }
+
 
   static Future<List<ReminderModel>> getReminder(String userId) async {
     var url = Uri.http(Config.apiURL, Config.getReminderAPI, {'userId': userId});

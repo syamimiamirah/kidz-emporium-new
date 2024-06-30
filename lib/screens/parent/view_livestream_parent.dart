@@ -65,7 +65,7 @@ class _ViewLivestreamPageState extends State<ViewLivestreamPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Join Livestream'),
+        title: Text('Join Virtual Meeting'),
         centerTitle: true,
         backgroundColor: kPrimaryColor,
       ),
@@ -78,7 +78,7 @@ class _ViewLivestreamPageState extends State<ViewLivestreamPage> {
           children: [
             SizedBox(height: 10),
             Text(
-              'You are about to join the livestream meeting.',
+              'You are about to join the virtual meeting.',
               style: TextStyle(
                 fontSize: 20,
                 color: Colors.black,
@@ -107,7 +107,7 @@ class _ViewLivestreamPageState extends State<ViewLivestreamPage> {
             SizedBox(height: 20),
             if (hasError)
               Text(
-                'The livestream URL is not available.',
+                'The virtual meeting URL is not available.',
                 style: TextStyle(color: Colors.red, fontSize: 16),
               ),
             ElevatedButton(

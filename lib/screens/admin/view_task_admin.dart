@@ -75,6 +75,7 @@ class _viewTaskAdminPageState extends State<ViewTaskAdminPage>{
         tasks = loadedTasks;
       });
     } catch (error) {
+      showAlertDialog(context, "Error loading tasks");
       print('Error loading tasks: $error');
     }
   }

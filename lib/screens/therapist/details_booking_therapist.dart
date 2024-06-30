@@ -114,7 +114,7 @@ class _BookingDetailsTherapistPageState extends State<BookingDetailsTherapistPag
                     ),
                   ),
                   child: Text(
-                    'Livestream',
+                    'Virtual Meeting',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),

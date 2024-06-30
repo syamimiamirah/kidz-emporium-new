@@ -62,13 +62,13 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
       BookingModel? booking = await APIService.getBookingDetails(widget.bookingId);
       if (booking != null) {
         // Update UI with fetched booking details
-        setState(() {
-          childId = booking.childId;
-          service = booking.service;
-          fromDate = Utils.parseStringToDateTime(booking.fromDate);
-          toDate = Utils.parseStringToDateTime(booking.toDate);
-          therapistId = booking.therapistId!;
-          paymentId = booking.paymentId ?? '';
+        setState(() {childId = booking.childId ?? '';
+        service = booking.service ?? '';
+        fromDate = Utils.parseStringToDateTime(booking.fromDate) ?? DateTime.now();
+        toDate = Utils.parseStringToDateTime(booking.toDate) ?? DateTime.now();
+        therapistId = booking.therapistId ?? '';
+        userId = booking.userId ?? '';
+          //paymentId = booking.paymentId ?? '';
           userId = booking.userId!;
           // Find therapist name from users list
           UserModel? selectedTherapist = users.firstWhere(
@@ -78,6 +78,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
           therapistName = selectedTherapist.name;
           // Fetch and set child name similarly if needed
         });
+        print("fetch booking: $userId");
       } else {
         // Handle case where booking is null
         print('Booking details not found');
@@ -106,6 +107,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
       });
     } catch (error) {
       print('Error fetching data: $error');
+      showAlertDialog(context, 'Failed to load therapists');
       // Handle error
     } finally {
       setState(() {
@@ -251,7 +253,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
 
                 return InkWell(
                   onTap: () {
-                    _assignTherapist(user);
+                    _assignTherapist(user, userId);
                   },
                   child: Card(
                     elevation: 4,
@@ -287,7 +289,8 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
     );
   }
 
-  void _assignTherapist(UserModel user) {
+  void _assignTherapist(UserModel user, String userId) {
+    print("fetch _assignTherapist: $userId");
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -317,8 +320,8 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
             ),
             TextButton(
               onPressed: () {
-                // Handle assignment logic here
-                saveBookingDetails(user.id!);
+                print(userId);
+                saveBookingDetails(user.id!, userId);
                 Navigator.of(context).pop();
               },
               child: Text('Assign'),
@@ -332,7 +335,8 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
     );
   }
 
-  Future<void> saveBookingDetails(String therapistId) async {
+  Future<void> saveBookingDetails(String therapistId, String userId) async {
+    print("fetch saveBookingDetails: $userId");
     try {
       BookingModel updatedBooking = BookingModel(
         service: service,
@@ -349,16 +353,16 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
         toDate: Utils.formatDateTimeToString(toDate),
         userId: userId,
       );
-
-
       bool success = await APIService.updateBooking(widget.bookingId, updatedBooking);
-      //final reminderResponse = await APIService.createReminder(reminderModel);
-      setState(() {
-        isAPICallProcess = false;
-      });
+      //final reminderResponse =
+      //await APIService.createReminder(reminderModel);
 
-      if (success) {
-        await APIService.createReminder(reminderModel);
+      APIService.createReminder(reminderModel).then((response) {
+        print(response);
+        setState(() {
+          isAPICallProcess = false;//API
+        });
+        if (success == true && response!= null) {
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -371,7 +375,7 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ViewBookingAdminPage(userData: widget.userData)
+                          builder: (context) => ViewBookingAdminPage(userData: widget.userData),
                         ),
                       );
                     },
@@ -384,15 +388,56 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
               );
             },
           );
+        } else {
+          // Handle update or reminder creation failure
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(Config.appName),
+                content: Text('Failed to update booking details or create reminder.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close dialog
+                    },
+                    child: Text(
+                      'OK',
+                      style: TextStyle(color: kPrimaryColor),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
         }
-         else {
-        // Handle update failure
-        // Show error message or retry option
-      }
+      });
     } catch (error) {
       print('Error updating booking details: $error');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(Config.appName),
+            content: Text('An error occurred. Please try again later.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                },
+                child: Text(
+                  'OK',
+                  style: TextStyle(color: kPrimaryColor),
+                ),
+              ),
+            ],
+          );
+        },
+      );
     }
+
   }
+
   Widget _buildAvailabilityIndicator(bool isAvailable) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -492,6 +537,25 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
           ),
         ],
       ),
+    );
+  }
+  void showAlertDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(Config.appName),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK', style: TextStyle(color: kSecondaryColor),),
+            ),
+          ],
+        );
+      },
     );
   }
 }

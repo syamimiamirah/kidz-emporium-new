@@ -62,6 +62,7 @@ class _ViewReminderParentPageState extends State<ViewReminderParentPage> {
       setState(() {});
     } catch (error) {
       print('Error loading reminders: $error');
+      showAlertDialog(context, "Error loading reminders");
     }
   }
 

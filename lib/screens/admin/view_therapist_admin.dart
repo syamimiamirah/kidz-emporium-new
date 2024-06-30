@@ -46,6 +46,7 @@ class _ViewTherapistAdminPageState extends State<ViewTherapistAdminPage> {
       });
     } catch (error) {
       print('Error loading therapists: $error');
+      showAlertDialog(context, 'Failed to load therapists');
     }
   }
 

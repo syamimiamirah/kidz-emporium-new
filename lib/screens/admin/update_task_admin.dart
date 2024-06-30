@@ -37,6 +37,7 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
   List<String> selectedTherapists = [];
   List<UserModel> therapists = [];
   List<UserModel> savedTherapists = [];
+  List<UserModel> notAvailableTherapists = [];
   List<UserModel> remainingTherapists = [];
 
   @override
@@ -72,19 +73,29 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
 
       // Separate therapists into saved and remaining
       List<UserModel> availableTherapists = [];
+      List<UserModel> unselectedTherapists = [];
       List<UserModel> unavailableTherapists = [];
-
       for (var therapist in therapistList) {
+
         if (selectedTherapists.contains(therapist.id)) {
           savedTherapists.add(therapist);
         } else {
-          unavailableTherapists.add(therapist);
+          unselectedTherapists.add(therapist);
         }
       }
-
+      for (var therapist in unselectedTherapists) {
+        bool isAvailable = await APIService.checkTherapistAvailability(therapist.id!, fromDate, toDate);
+        if (isAvailable) {
+          remainingTherapists.add(therapist);
+        } else {
+          notAvailableTherapists.add(therapist);
+        }
+      }
       setState(() {
         savedTherapists = savedTherapists;
-        remainingTherapists = unavailableTherapists;
+        remainingTherapists = remainingTherapists;
+        notAvailableTherapists = notAvailableTherapists;
+        print(unavailableTherapists);
       });
 
       // Check availability of therapists only when the date is changed
@@ -397,6 +408,49 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Divider(color: Colors.grey),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.people, // Your desired icon
+                              color: kPrimaryColor, // Icon color
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              'Available Therapists',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // List of available therapists
+                      Column(
+                        children: remainingTherapists.map((therapist){
+                          bool isSelected = selectedTherapists.contains(therapist.id);
+                          return ListTile(
+                            title: Text(therapist.name ?? ''),
+                            trailing: isSelected ? Icon(Icons.check_circle, color: kPrimaryColor) : null,
+                            onTap: () {
+                              setState(() {
+                                if (isSelected) {
+                                  selectedTherapists.remove(therapist.id);
+                                } else {
+                                  selectedTherapists.add(therapist.id!);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      // Divider between available and unavailable therapists
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Divider(color: Colors.grey),
+                      ),
                       // Header for unavailable therapists
                       Padding(
                         padding: const EdgeInsets.all(10),
@@ -420,10 +474,9 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
                       ),
                       // List of unavailable therapists
                       Column(
-                        children: remainingTherapists.map((therapist) {
+                        children: notAvailableTherapists.map((therapist) {
                           return ListTile(
-                            title: Text(
-                              therapist.name ?? '',
+                            title: Text(therapist.name ?? '',
                               style: TextStyle(color: Colors.grey),
                             ),
                             trailing: Icon(Icons.block, color: Colors.red),
@@ -578,6 +631,26 @@ class _updateTaskAdminPageState extends State<UpdateTaskAdminPage>{
     if (form != null && form.validate()) {
       print("Save method is called");
       form.save();
+      if (selectedTherapists.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(Config.appName),
+              content: Text("Please select at least one therapist."),
+              actions: [
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      }
       TaskModel? task = await APIService.getTaskDetails(widget.taskId);
 
       print(Utils.parseStringToDateTime(task!.fromDate));

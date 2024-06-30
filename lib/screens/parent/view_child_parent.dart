@@ -39,6 +39,7 @@ class _ViewChildParentPageState extends State<ViewChildParentPage> {
       });
     } catch (error) {
       print('Error loading children: $error');
+      showAlertDialog(context, "Error loading children");
     }
   }
 

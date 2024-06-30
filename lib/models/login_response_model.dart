@@ -43,7 +43,7 @@ class Data {
   Data.fromJson(Map<String, dynamic> json){
     email = json['email'];
     name = json['name'];
-    id = json['_id'];
+    id = json['userId'];
     token = json['token'];
     role = json['role'];
   }
@@ -52,12 +52,12 @@ class Data {
     final data = <String, dynamic>{};
     data['email'] = email;
     data['name'] = name;
-    data['_id'] = id;
+    data['userId'] = id;
     data['token'] = token;
     data['role'] = role;
 
     if (id != null) {
-      data['_id'] = id; // Include id in JSON if it's not null
+      data['userId'] = id; // Include id in JSON if it's not null
     }
 
     return data;
