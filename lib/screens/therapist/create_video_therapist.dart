@@ -362,7 +362,8 @@ class _CreateVideoTherapistPageState extends State<CreateVideoTherapistPage> {
                 )
               ],
             ),
-          )
+          ),
+          const SizedBox(height: 10),
         ],
       ),
     );

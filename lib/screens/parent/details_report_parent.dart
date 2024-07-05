@@ -70,6 +70,7 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
       });
     } catch (error) {
       print('Error checking report: $error');
+      showAlertDialog(context, "Error checking report");
     }
   }
 
@@ -283,6 +284,25 @@ class _ReportDetailsParentPageState extends State<ReportDetailsParentPage> {
           SizedBox(height: 20),
         ],
       ),
+    );
+  }
+  void showAlertDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(Config.appName),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK', style: TextStyle(color: kSecondaryColor),),
+            ),
+          ],
+        );
+      },
     );
   }
 }

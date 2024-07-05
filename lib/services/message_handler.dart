@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:kidz_emporium/Screens/home.dart';
-import 'package:kidz_emporium/services/shared_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/parent/view_notification_parent.dart';
 import 'local_notification.dart';
+import '../services/shared_service.dart';
 
 class MessageHandler {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -26,8 +25,6 @@ class MessageHandler {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleMessage(context, message);
     });
-
-
 
     // Request permissions for iOS
     await _firebaseMessaging.requestPermission(

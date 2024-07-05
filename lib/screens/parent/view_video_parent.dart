@@ -27,6 +27,7 @@ class ViewVideoParentPage extends StatefulWidget {
 
 class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTickerProviderStateMixin {
   List<VideoModel> videos = [];
+  List<ChildModel> childList = [];
   late Future<List<YoutubeModel>> youtubeVideos;
   TextEditingController searchController = TextEditingController();
   TabController? _tabController;
@@ -42,13 +43,26 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
   Future<void> _loadVideos(String userId) async {
     try {
       List<VideoModel> videoList = await APIService.getAllVideos();
-      List<ChildModel> childList = await APIService.getChild(userId);
+      childList = await APIService.getChild(userId);
+      print(childList);
 
       // Extract child IDs from the child list
-      // List<String?> childIds = childList.map((child) => child.id).toList();
-      //
-      // // Filter videos that belong to the user's children
-      // videoList = videoList.where((video) => childIds.contains(video.childId)).toList();
+      List<String?> childIds = childList.map((child) => child.id).toList();
+      print(childIds);
+      for (var video in videoList) {
+        print('Video ID: ${video.id}, Child ID: ${video.childId}');
+      }
+
+      // Filter videos that belong to the user's children
+      videoList = videoList.where((video) =>
+      video.childId != null && video.childId!.any((id) => childIds.contains(id))
+      ).toList();
+
+      // Print filtered video list
+      videoList.forEach((video) {
+        print('Filtered Video ID: ${video.id}, Child ID: ${video.childId}');
+      });
+
       setState(() {
         videos = videoList;
       });
@@ -57,6 +71,13 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
       showAlertDialog(context, "Error loading videos");
     }
   }
+  String? getChildNameById(String? childId) {
+    print('Fetching name for Child ID: $childId');
+    final child = childList.firstWhere((child) => child.id == childId, orElse: () => ChildModel(childName: 'Not Defined', birthDate: '', gender: '', program: '', userId: ''));
+    print('Child Name: ${child.childName}');
+    return child.childName;
+  }
+
 
   Future<String?> generateThumbnail(String videoUrl) async {
     final thumbnailUrl = await VideoThumbnail.thumbnailFile(
@@ -139,6 +160,7 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
             child: ListView.builder(
               itemCount: videos.length,
               itemBuilder: (context, index) {
+                final childNames = videos[index].childId?.map(getChildNameById).whereType<String>().join(', ') ?? '';
                 return Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -146,20 +168,47 @@ class _ViewVideoParentPageState extends State<ViewVideoParentPage> with SingleTi
                     side: BorderSide(color: Colors.grey.shade300, width: 1),
                   ),
                   child: ListTile(
-                    title: Text(videos[index].videoTitle, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                      videos[index].videoDescription,
-                      maxLines: 4, // Limit to 3 lines
-                      overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14.0,)),  // Display ellipsis if overflow
-                    leading: videos[index].thumbnailPath != null ? Image.network(videos[index].thumbnailPath!) : SizedBox.shrink(),
+                    contentPadding: EdgeInsets.all(12.0),
+                    leading: videos[index].thumbnailPath != null
+                        ? Image.network(
+                      videos[index].thumbnailPath!,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    )
+                        : SizedBox.shrink(),
+                    title: Text(
+                      videos[index].videoTitle,
+                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 4),
+                        Text(
+                          videos[index].videoDescription ?? '',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 14.0),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Child: $childNames',
+                          style: TextStyle(fontSize: 14.0, fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
                     onTap: () {
                       Navigator.push(
-                        context, MaterialPageRoute(
-                        builder: (context) =>
-                            WatchVideoParentPage(
-                                userData: widget.userData,
-                                video: videos[index]),
-                      ),
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WatchVideoParentPage(
+                            userData: widget.userData,
+                            video: videos[index],
+                          ),
+                        ),
                       );
                       print('Video tapped: ${videos[index].videoTitle}');
                     },

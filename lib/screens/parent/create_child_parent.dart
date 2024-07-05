@@ -189,7 +189,7 @@ class _createChildParentPageState extends State<CreateChildParentPage>{
                           )
                         ],// The first item is the hint, set its value to null
                         isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: kPrimaryColor),
+                        icon: Icon(Icons.arrow_drop_down, color: kSecondaryColor),
                         onChanged: (String? newValue){
                           //Your code to execute, when a menu item is selected from dropdown
                           //dropDownStringItem = value;
@@ -254,7 +254,7 @@ class _createChildParentPageState extends State<CreateChildParentPage>{
                           // ),
                         ],// The first item is the hint, set its value to null
                         isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: kPrimaryColor),
+                        icon: Icon(Icons.arrow_drop_down, color: kSecondaryColor),
                         onChanged: (String? newValue){
                           //Your code to execute, when a menu item is selected from dropdown
                           //dropDownStringItem = value;

@@ -48,6 +48,11 @@ class _createReminderParentPageState extends State<CreateReminderParentPage>{
       print("Error: userData or userData.data is null");
     }
   }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context){

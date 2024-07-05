@@ -117,12 +117,19 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
   }
 
   Future<void> _selectFromDate(BuildContext context) async {
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedFromDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      // Define a theme for the date picker
+      selectableDayPredicate: (DateTime day) {
+        // Disable Sunday and Monday
+        if (day.weekday == DateTime.sunday || day.weekday == DateTime.monday) {
+          return false;
+        }
+        return true;
+      },
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -168,7 +175,13 @@ class _ViewTherapistAvailabilityPageState extends State<ViewTherapistAvailabilit
       initialDate: selectedToDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-
+      selectableDayPredicate: (DateTime day) {
+        // Disable Sunday and Monday
+        if (day.weekday == DateTime.sunday || day.weekday == DateTime.monday) {
+          return false;
+        }
+        return true;
+      },
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(

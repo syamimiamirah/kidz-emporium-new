@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:kidz_emporium/Screens/parent/view_reminder_parent.dart';
 import 'package:kidz_emporium/screens/parent/update_booking_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_booking_parent.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
@@ -65,8 +66,16 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
       setState(() {
         _title = data['title'] ?? 'No Title';
         _body = data['body'] ?? 'No Body';
-        _bookingId = data['bookingId'] ?? 'No Booking ID';
-        _notificationType = data['type'] ?? 'general';
+        _bookingId = data['data']?['bookingId'] ?? 'No Booking ID';
+        print(_bookingId);
+
+        // Determine the notification type based on the presence of the bookingId
+        if (_bookingId != 'No Payload') {
+          _notificationType = 'booking';
+        } else {
+          _notificationType = 'general'; // If bookingId is absent, treat it as a general notification
+        }
+        //_notificationType = data['type'] ?? 'general';
         _notificationHandled = true;
       });
     } catch (e) {
@@ -82,7 +91,14 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
       _title = notification?.title ?? 'No Title';
       _body = notification?.body ?? 'No Body';
       _bookingId = data['bookingId'] ?? 'No Booking ID';
-      _notificationType = data['type'] ?? 'general';
+      print(_bookingId);
+      // Determine the notification type based on the presence of the bookingId
+      if (_bookingId != 'No Payload') {
+        _notificationType = 'booking';
+      } else {
+        _notificationType = 'general'; // If bookingId is absent, treat it as a general notification
+      }
+      //_notificationType = data['type'] ?? 'general';
       _notificationHandled = true;
     });
   }
@@ -183,7 +199,7 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ViewBookingParentPage(userData: widget.userData),
+                    builder: (context) => ViewReminderParentPage(userData: widget.userData),
                   ),
                 );
               },

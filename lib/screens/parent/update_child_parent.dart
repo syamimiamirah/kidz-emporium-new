@@ -138,6 +138,19 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
                                 initialDate: birthDate,
                                 firstDate: DateTime(1900),
                                 lastDate: DateTime.now(),
+                                builder: (BuildContext context, Widget? child) {
+                                  return Theme(
+                                    data: ThemeData(
+                                      colorScheme: ColorScheme.light(
+                                        primary: kSecondaryColor, // Set your desired color here
+                                      ),
+                                      buttonTheme: ButtonThemeData(
+                                        textTheme: ButtonTextTheme.primary,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
                               ).then((selectedDate){
                                 if(selectedDate != null && selectedDate != birthDate){
                                   setState(() {
@@ -207,7 +220,7 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
                             )
                           ],// The first item is the hint, set its value to null
                           isExpanded: true,
-                          icon: Icon(Icons.arrow_drop_down, color: kPrimaryColor),
+                          icon: Icon(Icons.arrow_drop_down, color: kSecondaryColor),
                           onChanged: (String? newValue) {
                             setState(() {
                               this.gender = newValue!; // Ensure a non-null value
@@ -281,7 +294,7 @@ class _updateChildParentPageState extends State<UpdateChildParentPage>{
                             ),
                           ],// The first item is the hint, set its value to null
                           isExpanded: true,
-                          icon: Icon(Icons.arrow_drop_down, color: kPrimaryColor),
+                          icon: Icon(Icons.arrow_drop_down, color: kSecondaryColor),
                           onChanged: (String? newValue) {
                             setState(() {
                               this.program = newValue!; // Ensure a non-null value
