@@ -13,6 +13,7 @@ import 'package:kidz_emporium/services/api_service.dart';
 
 import '../../config.dart';
 import '../../contants.dart';
+import '../../models/child_model.dart';
 import '../../services/firebase_storage_service.dart';
 import 'create_video_therapist.dart';
 
@@ -27,11 +28,13 @@ class ViewVideoTherapistPage extends StatefulWidget {
 
 class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
   List<VideoModel> videos = [];
+  List<ChildModel> childList = [];
 
   @override
   void initState() {
     super.initState();
     _loadVideos(widget.userData.data!.id);
+    _loadChildren();
   }
 
   Future<void> _loadVideos(String userId) async {
@@ -44,6 +47,25 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
       print('Error loading videos: $error');
     }
   }
+  Future<void> _loadChildren () async {
+    try {
+      List<ChildModel> children = await APIService.getAllChildren();
+
+      setState(() {
+        childList = children;
+      });
+    } catch (error) {
+      print('Error loading child data: $error');
+    }
+  }
+
+  String? getChildNameById(String? childId) {
+    print('Fetching name for Child ID: $childId');
+    final child = childList.firstWhere((child) => child.id == childId, orElse: () => ChildModel(childName: 'Not Defined', birthDate: '', gender: '', program: '', userId: ''));
+    print('Child Name: ${child.childName}');
+    return child.childName;
+  }
+
 
   // Future<String?> generateThumbnail(String videoUrl) async {
   //   final thumbnailUrl = await VideoThumbnail.thumbnailFile(
@@ -88,6 +110,7 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
               child: ListView.builder(
                 itemCount: videos.length,
                 itemBuilder: (context, index) {
+                  final childNames = videos[index].childId?.map(getChildNameById).whereType<String>().join(', ') ?? '';
                   return Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -95,20 +118,47 @@ class _ViewVideoTherapistPageState extends State<ViewVideoTherapistPage> {
                       side: BorderSide(color: Colors.grey.shade300, width: 1),
                     ),
                     child: ListTile(
-                      title: Text(videos[index].videoTitle, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                      subtitle: Text(
-                          videos[index].videoDescription,
-                          maxLines: 4, // Limit to 3 lines
-                          overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14.0,)),
-                      leading: videos[index].thumbnailPath != null ? Image.network(videos[index].thumbnailPath!) : SizedBox.shrink(),
+                      contentPadding: EdgeInsets.all(12.0),
+                      title: Text(
+                        videos[index].videoTitle,
+                        style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 4),
+                          Text(
+                            videos[index].videoDescription ?? '',
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 14.0),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Child: $childNames',
+                            style: TextStyle(fontSize: 14.0, fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                      leading: videos[index].thumbnailPath != null
+                          ? Image.network(
+                        videos[index].thumbnailPath!,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      )
+                          : SizedBox.shrink(),
                       onTap: () {
                         Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) =>
-                              WatchVideoTherapistPage(
-                                  userData: widget.userData,
-                                  video: videos[index]),
-                        ),
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WatchVideoTherapistPage(
+                              userData: widget.userData,
+                              video: videos[index],
+                            ),
+                          ),
                         );
                         print('Video tapped: ${videos[index].videoTitle}');
                       },

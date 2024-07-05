@@ -91,7 +91,7 @@ class _ViewVideoAdminPageState extends State<ViewVideoAdminPage> with SingleTick
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavBar(userData: widget.userData),
+      drawer: AdminNavBar(userData: widget.userData),
       appBar: AppBar(
         title: Text('Videos'),
         centerTitle: true,

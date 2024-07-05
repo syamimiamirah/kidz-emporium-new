@@ -714,7 +714,7 @@ class _adminHomePageState extends State<AdminHomePage>{
 
   Future<void> _loadChildren(String userId) async {
     try {
-      List<ChildModel> loadedChildren = await APIService.getChild(widget.userData.data!.id);
+      List<ChildModel> loadedChildren = await APIService.getAllChildren();
       setState(() {
         children = loadedChildren;
       });
@@ -939,7 +939,7 @@ class _adminHomePageState extends State<AdminHomePage>{
                                 (user) => user.id == booking.therapistId,
                             orElse: () => UserModel(
                               id: '',
-                              name: 'Unknown',
+                              name: 'Not Decided Yet',
                               email: '',
                               password: '',
                               phone: '',
@@ -1115,7 +1115,7 @@ class _therapistHomePageState extends State<TherapistHomePage>{
 
   Future<void> _loadChildren(String userId) async {
     try {
-      List<ChildModel> loadedChildren = await APIService.getChild(widget.userData.data!.id);
+      List<ChildModel> loadedChildren = await APIService.getAllChildren();
       setState(() {
         children = loadedChildren;
       });
@@ -1342,7 +1342,7 @@ class _therapistHomePageState extends State<TherapistHomePage>{
                                 (user) => user.id == booking.therapistId,
                             orElse: () => UserModel(
                               id: '',
-                              name: 'Unknown',
+                              name: 'Not decided yet',
                               email: '',
                               password: '',
                               phone: '',

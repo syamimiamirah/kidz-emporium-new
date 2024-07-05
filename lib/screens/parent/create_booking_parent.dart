@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:kidz_emporium/Screens/parent/view_booking_parent.dart';
 import 'package:kidz_emporium/screens/parent/create_payment_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_child_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_reminder_parent.dart';
@@ -372,10 +373,11 @@ class _createBookingParentPageState extends State<CreateBookingParentPage> {
                                     actions: [
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.of(context).pop(); // Close the dialog
-                                          Navigator.of(context).pop(); // Go back to the previous screen
+                                          Navigator.pushReplacement(context, MaterialPageRoute(
+                                              builder: (context) => ViewBookingParentPage(userData: widget.userData)),
+                                          );// Go back to the previous screen
                                         },
-                                        child: Text('OK'),
+                                        child: Text('OK',  style: TextStyle(color: kPrimaryColor)),
                                       ),
                                     ],
                                   );
