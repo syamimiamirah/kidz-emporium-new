@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:kidz_emporium/Screens/parent/view_reminder_parent.dart';
+import 'package:kidz_emporium/Screens/parent/view_report_parent.dart';
 import 'package:kidz_emporium/screens/parent/update_booking_parent.dart';
 import 'package:kidz_emporium/screens/parent/view_booking_parent.dart';
 import 'package:kidz_emporium/models/login_response_model.dart';
@@ -95,7 +96,10 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
       // Determine the notification type based on the presence of the bookingId
       if (_bookingId != 'No Payload') {
         _notificationType = 'booking';
-      } else {
+      } else if(_bookingId == 'reportId'){
+        _notificationType = 'report';
+      }else
+       {
         _notificationType = 'general'; // If bookingId is absent, treat it as a general notification
       }
       //_notificationType = data['type'] ?? 'general';
@@ -219,7 +223,37 @@ class _NotificationDetailsPageState extends State<NotificationDetailsPage> {
               ),
             ),
           ),
-        ],
+        ]
+        else if (_notificationType == 'report') ...[
+            SizedBox(height: 40),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewReportParentPage(userData: widget.userData),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: kPrimaryColor,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  'Report',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+
       ],
     );
   }
