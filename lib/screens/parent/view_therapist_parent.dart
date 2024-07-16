@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kidz_emporium/models/therapist_model.dart';
 
+import '../../components/side_menu.dart';
 import '../../contants.dart';
 import '../../models/login_response_model.dart';
 import '../../models/user_model.dart';
@@ -65,6 +66,7 @@ class _ViewTherapistParentPageState extends State<ViewTherapistParentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: NavBar(userData: widget.userData),
       appBar: AppBar(
         title: Text('Therapists List'),
         backgroundColor: kSecondaryColor,

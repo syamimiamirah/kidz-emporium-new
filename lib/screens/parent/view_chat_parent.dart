@@ -66,7 +66,20 @@ class _FAQPageState extends State<FAQPage> {
   // Define the FAQ responses
   List<FAQResponse> _faqResponses = [
     FAQResponse(
-      text: 'Our services listed below: \n\n• Occupational Therapy (OT)\n\n• Speech Therapy (ST)\n\n• Special Education (SPED)\n\n• Clinical Psychology (PSY)\n\n• Big Ones Playgroup\n\n• Little Ones Playgroup\n\n*All services come with package or one to one session.',
+      text: 'Our services listed below: \n\n '
+            '• Occupational Therapy (OT)\n\n'
+            'Description: Occupational Therapy helps individuals develop, recover, or maintain daily living and work skills. This therapy is particularly beneficial for individuals with physical, sensory, or cognitive disabilities.\n\n'
+            '• Speech Therapy (ST)\n\n'
+            'Description: Speech Therapy addresses speech, language, and communication disorders. It helps individuals improve their verbal and non-verbal communication skills.\n\n'
+            '• Special Education (SPED)\n\n'
+            'Description: Special Education provides tailored educational programs for children with learning disabilities or special needs. It aims to enhance their learning abilities and help them achieve academic success.\n\n'
+            '• Clinical Psychology (PSY)\n\n'
+            'Description: Clinical Psychology services include assessment, diagnosis, and treatment of mental health issues. Therapists work with individuals to manage and overcome psychological challenges.\n\n'
+            '• Big Ones Playgroup\n\n'
+            'Description: Big Ones Playgroup is designed for older children to engage in group activities that promote social, emotional, and cognitive development through play.\n\n'
+            '• Little Ones Playgroup\n\n'
+            'Description: Little Ones Playgroup caters to younger children, providing a safe and stimulating environment for early childhood development through play-based learning.\n\n'
+            '*All services come with package or one to one session.',
       image: null,
     ),
     FAQResponse(
@@ -474,7 +487,20 @@ class _FAQPageState extends State<FAQPage> {
     // Simulated FAQ responses
     if (keyword == 'Our Services') {
       return FAQResponse(
-        text: 'Our services listed below: \n\n• Occupational Therapy (OT)\n\n• Speech Therapy (ST)\n\n• Special Education (SPED)\n\n• Clinical Psychology (PSY)\n\n• Big Ones Playgroup\n\n• Little Ones Playgroup\n\n *All services come with package or one to one session.',
+        text: 'Our services listed below: \n\n '
+            '• Occupational Therapy (OT)\n\n'
+            'Description: Occupational Therapy helps individuals develop, recover, or maintain daily living and work skills. This therapy is particularly beneficial for individuals with physical, sensory, or cognitive disabilities.\n\n'
+            '• Speech Therapy (ST)\n\n'
+            'Description: Speech Therapy addresses speech, language, and communication disorders. It helps individuals improve their verbal and non-verbal communication skills.\n\n'
+            '• Special Education (SPED)\n\n'
+            'Description: Special Education provides tailored educational programs for children with learning disabilities or special needs. It aims to enhance their learning abilities and help them achieve academic success.\n\n'
+            '• Clinical Psychology (PSY)\n\n'
+            'Description: Clinical Psychology services include assessment, diagnosis, and treatment of mental health issues. Therapists work with individuals to manage and overcome psychological challenges.\n\n'
+            '• Big Ones Playgroup\n\n'
+            'Description: Big Ones Playgroup is designed for older children to engage in group activities that promote social, emotional, and cognitive development through play.\n\n'
+            '• Little Ones Playgroup\n\n'
+            'Description: Little Ones Playgroup caters to younger children, providing a safe and stimulating environment for early childhood development through play-based learning.\n\n'
+            '*All services come with package or one to one session.',
         image: null,
       );
     } else if (keyword == 'Booking Payment') {

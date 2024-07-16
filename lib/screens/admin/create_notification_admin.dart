@@ -32,7 +32,10 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
   String generateMessage() {
     String baseMessage = "We are sorry, the chosen date has no available therapist. Please reschedule your session based on the dates below:\n\n";
     String bulletPoints = availableDates.map((date) => '• $date').join('\n');
-    return baseMessage + bulletPoints;
+    String info = "\n\nIf you are having problem with the available date, please contact our center for any inquiries through: \n\n"
+        "Phone: 03 - 89122455 or 017 - 5277473 \n\n"
+        "Email: emporiumtherapy@gmail.com \n\n ";
+    return baseMessage + bulletPoints + info;
   }
 
   String subject = "Booking Date is Not Available";
@@ -124,7 +127,7 @@ class _AdminSendMessagePageState extends State<AdminSendMessagePage> {
                 isMultiline: true,
                 hintFontSize: 16,
                 maxLength: TextField.noMaxLength,
-                multilineRows: 10,
+                multilineRows: 15,
                 initialValue: message, // Set initial value
               ),
             ),
